@@ -1,0 +1,46 @@
+import serial
+import time
+import csv
+from datetime import datetime
+
+# KONFIGURASI
+SERIAL_PORT = 'COM'  # Ganti dengan port Teensy Anda
+BAUD_RATE = 115200
+
+def get_filename():
+    return f"flight_log_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.csv"
+
+def main():
+    filename = get_filename()
+    
+    try:
+        # Buka koneksi serial
+        ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=1)
+        print(f"Terhubung ke {SERIAL_PORT}. Logging ke {filename}...")
+        
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            # Tulis Header
+            writer.writerow(["Timestamp_ms", "Roll", "Pitch", "Yaw", "Quat_W", "Quat_X", "Quat_Y", "Quat_Z"])
+            
+            while True:
+                if ser.in_waiting > 0:
+                    # Baca baris data dari Teensy
+                    try:
+                        line = ser.readline().decode('utf-8').strip()
+                        if line:
+                            data = line.split(',')
+                            writer.writerow(data)
+                            print(f"Data: {data}")
+                    except UnicodeDecodeError:
+                        pass # Abaikan error decoding karakter aneh
+                        
+    except serial.SerialException as e:
+        print(f"Error Serial: {e}")
+    except KeyboardInterrupt:
+        print("\nLogging dihentikan.")
+        if 'ser' in locals() and ser.is_open:
+            ser.close()
+
+if __name__ == "__main__":
+    main()
