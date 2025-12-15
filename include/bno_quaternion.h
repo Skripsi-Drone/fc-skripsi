@@ -78,17 +78,13 @@ void bno055_update() {
     gyrs = (float(gyroData.y) / 16.0); // Kecepatan Pitch (q)
     gzrs = (float(gyroData.z) / 16.0); // Kecepatan Yaw (r)
 
-    // bno055_read_accel_xyz(&accelData);
-    // accx = (float)accelData.x;
-    // accy = (float)accelData.y;
-    // accz = (float)accelData.z;
-
     bno055_read_quaternion_wxyz(&quatData);
     qw = (float(quatData.w) / QUAT_SCALING_FACTOR);
     qx = (float(quatData.x) / QUAT_SCALING_FACTOR);
     qy = (float(quatData.y) / QUAT_SCALING_FACTOR);
     qz = (float(quatData.z) / QUAT_SCALING_FACTOR);
 
+    // Bagian remapping yang menyebabkan masalah Yaw (Left-Hand Rule)
     float qx_in = qy;
     float qy_in = qx;
     float qz_in = qz;
@@ -124,37 +120,10 @@ void bno055_update() {
     float yaw_rad = atan2(t3, t4);
 
     // 5. Konversi ke Derajat & Update Variabel Global
-    roll  = roll_rad * RAD_TO_DEG;
-    pitch = pitch_rad * RAD_TO_DEG;
+    roll  = -1 * (roll_rad * RAD_TO_DEG);
+    pitch = -1 * (pitch_rad * RAD_TO_DEG);
     yaw   = yaw_rad * RAD_TO_DEG;
-
-    // // --- 3. KONVERSI KE RADIAN (Standard ZYX Sequence) ---
-    // // Pitch (arcsin) paling rentan terhadap Gimbal Lock
-    // float pitch_rad_calc = asin(2.0f * (qwy - qxz)); 
-    // float roll_rad_calc = atan2(2.0f * (qwx + qyz), 1.0f - 2.0f * (qx2 + qy2));
-    // float yaw_rad_calc = atan2(2.0f * (qwz + qxy), 1.0f - 2.0f * (qy2 + qz2));
-
-    // // --- 4. PENYESUAIAN SUMBU FISIK (AXIS REMAPPING) ---
-    // // Simpan hasil konversi ke variabel sementara
-    // float roll_deg_temp = roll_rad_calc * (180.0f / PI);
-    // float pitch_deg_temp = pitch_rad_calc * (180.0f / PI);
-    // float yaw_deg_temp = yaw_rad_calc * (180.0f / PI);
-
-    // roll = pitch_deg_temp;  
-    // pitch = roll_deg_temp;
-    // yaw = yaw_deg_temp;
-    
-    // --- 5. NORMALISASI YAW (Opsional) ---
-    // if (roll < -180.0f) roll += 360.0f;
-    // Karena Yaw sudah dari Quaternion, ia sudah kontinu. Kita hanya membatasi display ke +/- 180.
-    // if (yaw > 180.0f) yaw -= 360.0f;
-    // if (yaw < -180.0f) yaw += 360.0f;
-
-    // --- 6. REMAPPING KECEPATAN SUDUT (WAJIB JIKA SUMBU DITUKAR) ---
-    // Jika roll dan pitch ditukar di atas, maka gxrs dan gyrs harus ditukar:
-    // float gxrs_temp = gxrs;
-    // gxrs = gyrs; // gxrs (Roll dot) mengambil gyrs (Pitch dot)
-    // gyrs = gxrs_temp; // gyrs (Pitch dot) mengambil gxrs (Roll dot) lama
+    // ... (baris komentar lainnya)
 }
 
 void bno055_init() {

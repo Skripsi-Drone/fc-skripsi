@@ -4,7 +4,8 @@
 #include <Arduino.h>
 #include <math.h>
 #include "Radio.h"
-#include "bno_euler.h"
+// #include "bno_euler.h"
+#include "bno_quaternion.h"
 // #include "ekf.h"
 
 #define INTEGRAL_LIMIT 10.0f

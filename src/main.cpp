@@ -3,8 +3,8 @@
 #include <fc_euler.h>
 #include <actu_setup.h>
 #include <TeensyThreads.h>
-#include <bno_euler.h>
-// #include "bno_quaternion.h"
+// #include <bno_euler.h>
+#include "bno_quaternion.h"
 
 #define TELEMETRY Serial2
 #define USB Serial
@@ -45,9 +45,9 @@ void debug_data() {
     USB.print(",");
     // USB.print(" SPY: ");
     // USB.print(setpoint_yaw);
-    // USB.print("Yaw:");
-    // USB.print(yaw);
-    // USB.print(",");
+    USB.print("Yaw:");
+    USB.print(yaw);
+    USB.print(",");
 
     // USB.print(" qw: ");
     // USB.print(qw, 4); // Cetak dengan 4 desimal
@@ -96,24 +96,24 @@ void telemetry_data() {
         // TELEMETRY.print(flight_mode);
         // TELEMETRY.print(" ; ");
         // TELEMETRY.print(" SPR: ");
-        TELEMETRY.print(setpoint_roll);
-        TELEMETRY.print(",");
-        // TELEMETRY.print("R:");
+        // TELEMETRY.print(setpoint_roll);
+        // TELEMETRY.print(",");
+        TELEMETRY.print("R:");
         TELEMETRY.print(roll);
         TELEMETRY.print(",");
         // TELEMETRY.print(",");
         // TELEMETRY.print(" SPP: ");
-        TELEMETRY.print(setpoint_pitch);
-        TELEMETRY.print(",");
-        // TELEMETRY.print("P:");
+        // TELEMETRY.print(setpoint_pitch);
+        // TELEMETRY.print(",");
+        TELEMETRY.print("P:");
         TELEMETRY.print(pitch);
         TELEMETRY.print(",");
         // TELEMETRY.print("Gx:");
         // TELEMETRY.print("Gy:");
         // TELEMETRY.print(" SPY: ");
-        TELEMETRY.print(setpoint_yaw);
-        TELEMETRY.print(",");
-        // TELEMETRY.print("Y:");
+        // TELEMETRY.print(setpoint_yaw);
+        // TELEMETRY.print(",");
+        TELEMETRY.print("Y:");
         TELEMETRY.print(yaw);
         TELEMETRY.print(",");
         TELEMETRY.print(gyrs);
@@ -124,17 +124,17 @@ void telemetry_data() {
         TELEMETRY.print(",");
         // TELEMETRY.print("Gz:");
         // TELEMETRY.print ("m1_pwm:");
-        TELEMETRY.print(motor1_pwm);
-        TELEMETRY.print(",");
+        // TELEMETRY.print(motor1_pwm);
+        // TELEMETRY.print(",");
         // // TELEMETRY.print ("m2_pwm:");
-        TELEMETRY.print(motor2_pwm);
-        TELEMETRY.print(",");
+        // TELEMETRY.print(motor2_pwm);
+        // TELEMETRY.print(",");
         // // TELEMETRY.print ("m3_pwm:");
-        TELEMETRY.print(motor3_pwm);
-        TELEMETRY.print(",");
+        // TELEMETRY.print(motor3_pwm);
+        // TELEMETRY.print(",");
         // // TELEMETRY.print ("m4_pwm:");
-        TELEMETRY.println(motor4_pwm);
-        // TELEMETRY.println("");
+        // TELEMETRY.println(motor4_pwm);
+        TELEMETRY.println("");
         timer_last = timer_now;
     }
 
@@ -156,6 +156,7 @@ void debug_wireless_com(){
     Serial.print(arrival_time);
     Serial.println(" ms");
 }
+
 void telemetry_thread() {
     while (true) {
         telemetry_data();
@@ -215,12 +216,13 @@ void setup() {
 void loop() {
     remote_loop();
     bno055_update();
-    debug_wireless_com();
+    // debug_data();
+    // debug_wireless_com();
     telemetry_data();
     set_control_reference();
     drone_controller();
     // thrust_check(ch_throttle);
-    writeMotors(motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm);
+    // writeMotors(motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm);
     // if (millis() - debug_timer >= 100) { 
     //     debug_data(); // Mencetak ke USB (Serial Monitor)
         // debug_timer = millis(); // Reset timer
