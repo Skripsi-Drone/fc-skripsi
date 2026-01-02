@@ -1,10 +1,9 @@
 #include <Arduino.h>
-// #include <control_lqr.h>
-#include <fc_euler.h>
+#include <Adafruit_BNO055.h>
+#include <bno_qt.h>
+#include <control_lqr.h>
 #include <actu_setup.h>
 #include <TeensyThreads.h>
-// #include <bno_euler.h>
-#include "bno_quaternion.h"
 
 #define TELEMETRY Serial2
 #define USB Serial
@@ -15,67 +14,64 @@ uint32_t debug_timer = 0;
 uint32_t timer_now, timer_last;
 
 void debug_data() {
-    // USB.print ("motor1_pwm:");
-    // USB.print(motor1_pwm);
-    // USB.print (",");
-    // USB.print ("motor2_pwm:");
-    // USB.print(motor2_pwm);
-    // USB.print (",");
-    // USB.print ("motor3_pwm:");
-    // USB.print(motor3_pwm);
-    // USB.print (",");
-    // USB.print ("motor4_pwm:");
-    // USB.print(motor4_pwm);
-    // USB.print (", ");
-    // USB.print("TS: ");
-    // USB.print(data.ch[i]);
-    // USB.print(" Mode: ");
-    // USB.print(flight_mode);
-    // USB.print(" SPR: ");
-    // USB.print(setpoint_roll);
-    USB.print("Roll:");
+    USB.print(millis());
+    USB.print(" ");
+    USB.print("Clb:");
+    USB.print(sys); 
+    USB.print("/"); 
+    USB.print(gyro); 
+    USB.print("/"); 
+    USB.print(accel); 
+    USB.print("/"); 
+    USB.print(mag);
+    USB.print(" arm");
+    USB.print(arming);
+    USB.print(" R:"); 
     USB.print(roll);
-    USB.print(",");
-    // USB.print(" Rdot: ");
-    // USB.print(gxrs);
-    // USB.print(" SPP: ");
-    // USB.print(setpoint_pitch);
-    USB.print("Pitch:");
+    USB.print(" P:"); 
     USB.print(pitch);
-    USB.print(",");
-    // USB.print(" SPY: ");
-    // USB.print(setpoint_yaw);
-    USB.print("Yaw:");
+    USB.print(" Y:"); 
     USB.print(yaw);
-    USB.print(",");
+    USB.print(" gx:");
+    USB.print(gxrs); //r
+    USB.print(" gy:");
+    USB.print(gyrs); //p
+    USB.print(" gz:");
+    USB.print(gzrs); //y
 
-    // USB.print(" qw: ");
-    // USB.print(qw, 4); // Cetak dengan 4 desimal
-    // USB.print(" qx: ");
-    // USB.print(qx, 4);
-    // USB.print(" qy: ");
-    // USB.print(qy, 4);
-    // USB.print(" qz: ");
-    // USB.print(qz, 4);
-    // USB.print("gxrs:");
-    // USB.print(gxrs);
-    // USB.print(",");
-    // USB.print("gyrs:");
-    // USB.print(gyrs);
-    // USB.print(",");
-    // USB.print("gzrs:");
-    // USB.print(gzrs);
-    // USB.print(",");
+    //aksi
+    USB.print(" mtr:");
+    USB.print(motor1_pwm);
+    USB.print(" ");
+    USB.print(motor2_pwm);
+    USB.print(" ");
+    USB.print(motor3_pwm);
+    USB.print(" ");
+    USB.print(motor4_pwm);
 
-    // cek dulu bedanya kalau u sama mx_pwm apa
-    // USB.print(" u1: ");
-    // USB.print(u1);
-    // USB.print(" u2: ");
-    // USB.print(u2);
-    // USB.print(" u3: ");
-    // USB.print(u3);
-    // USB.print(" u4: ");
-    // USB.println(u4);
+    USB.print(" ch: ");
+    USB.print(ch_throttle);
+    USB.print(" ");
+    USB.print(ch_roll);
+    USB.print(" ");
+    USB.print(ch_pitch);
+    USB.print(" ");
+    USB.print(ch_yaw);
+    USB.print(" err:");
+    USB.print(error_roll); 
+    USB.print(" erp");
+    USB.print(error_pitch); 
+    USB.print(" ery");
+    USB.print(error_yaw);
+    //motor mixer
+    // USB.print("mix:");
+    // USB.print(motor_speed_squared[0]); 
+    // USB.print(" ");
+    // USB.print(motor_speed_squared[1]); 
+    // USB.print(" ");
+    // USB.print(motor_speed_squared[2]); 
+    // USB.print(" ");
+    // USB.print(motor_speed_squared[3]);
     USB.println();
 }
 
@@ -83,57 +79,59 @@ void telemetry_data() {
         timer_now = millis();
         dt = timer_now - timer_last;
         if (dt >= 50) {
-        // TELEMETRY.print(millis());
-        // TELEMETRY.print(" ; ");
-        // if (arming) {
-        //     TELEMETRY.print("Armed");
-        // } else {
-        //     TELEMETRY.print("Disarmed");
-        // }
-        // TELEMETRY.print(",");
-        // TELEMETRY.print(" Mod: ");
-        //blm di define ini
-        // TELEMETRY.print(flight_mode);
-        // TELEMETRY.print(" ; ");
-        // TELEMETRY.print(" SPR: ");
-        // TELEMETRY.print(setpoint_roll);
-        // TELEMETRY.print(",");
-        TELEMETRY.print("R:");
+        TELEMETRY.print(millis());
+        TELEMETRY.print(" ");
+        if (arming) {
+            TELEMETRY.print("Arm");
+        } else {
+            TELEMETRY.print("Dsm");
+        }
+        TELEMETRY.print(" ");
+        TELEMETRY.print("Clb:");
+        TELEMETRY.print(sys); 
+        TELEMETRY.print("/"); 
+        TELEMETRY.print(gyro); 
+        TELEMETRY.print("/"); 
+        TELEMETRY.print(accel); 
+        TELEMETRY.print("/"); 
+        TELEMETRY.print(mag);
+        TELEMETRY.print(" R:"); 
         TELEMETRY.print(roll);
-        TELEMETRY.print(",");
-        // TELEMETRY.print(",");
-        // TELEMETRY.print(" SPP: ");
-        // TELEMETRY.print(setpoint_pitch);
-        // TELEMETRY.print(",");
-        TELEMETRY.print("P:");
+        TELEMETRY.print(" P:"); 
         TELEMETRY.print(pitch);
-        TELEMETRY.print(",");
-        // TELEMETRY.print("Gx:");
-        // TELEMETRY.print("Gy:");
-        // TELEMETRY.print(" SPY: ");
-        // TELEMETRY.print(setpoint_yaw);
-        // TELEMETRY.print(",");
-        TELEMETRY.print("Y:");
+        TELEMETRY.print(" Y:"); 
         TELEMETRY.print(yaw);
-        TELEMETRY.print(",");
-        TELEMETRY.print(gyrs);
-        TELEMETRY.print(",");
-        TELEMETRY.print(gxrs);
-        TELEMETRY.print(",");
-        TELEMETRY.print(gzrs);
-        TELEMETRY.print(",");
-        // TELEMETRY.print("Gz:");
-        // TELEMETRY.print ("m1_pwm:");
-        // TELEMETRY.print(motor1_pwm);
-        // TELEMETRY.print(",");
-        // // TELEMETRY.print ("m2_pwm:");
-        // TELEMETRY.print(motor2_pwm);
-        // TELEMETRY.print(",");
-        // // TELEMETRY.print ("m3_pwm:");
-        // TELEMETRY.print(motor3_pwm);
-        // TELEMETRY.print(",");
-        // // TELEMETRY.print ("m4_pwm:");
-        // TELEMETRY.println(motor4_pwm);
+        TELEMETRY.print(" gx:");
+        TELEMETRY.print(gxrs); //r
+        TELEMETRY.print(" gy:");
+        TELEMETRY.print(gyrs); //p
+        TELEMETRY.print(" gz:");
+        TELEMETRY.print(gzrs); //y
+
+        //aksi
+        TELEMETRY.print(" mtr:");
+        TELEMETRY.print(motor1_pwm);
+        TELEMETRY.print(" ");
+        TELEMETRY.print(motor2_pwm);
+        TELEMETRY.print(" ");
+        TELEMETRY.print(motor3_pwm);
+        TELEMETRY.print(" ");
+        TELEMETRY.print(motor4_pwm);
+
+        TELEMETRY.print(" ch: ");
+        TELEMETRY.print(ch_throttle);
+        TELEMETRY.print(" ");
+        TELEMETRY.print(ch_roll);
+        TELEMETRY.print(" ");
+        TELEMETRY.print(ch_pitch);
+        TELEMETRY.print(" ");
+        TELEMETRY.print(ch_yaw);
+        TELEMETRY.print(" err:");
+        TELEMETRY.print(error_roll); 
+        TELEMETRY.print(" erp");
+        TELEMETRY.print(error_pitch); 
+        TELEMETRY.print(" ery");
+        TELEMETRY.print(error_yaw);
         TELEMETRY.println("");
         timer_last = timer_now;
     }
@@ -168,7 +166,7 @@ void telemetry_thread() {
 
 void imu_thread() {
     while (true) {
-        bno055_update();
+        bno_update();
         threads.yield();
     }
 }
@@ -182,14 +180,14 @@ void remote_thread() {
 
 void control_thread() {
     while (true) {
-        set_control_reference();
+        // set_control_reference();
         drone_controller();
         threads.yield();
     }
 }
 
 void drone_setup() {
-    bno055_init();
+    bno_init();
     init_motors();
     remote_setup();
 }
@@ -215,14 +213,14 @@ void setup() {
 
 void loop() {
     remote_loop();
-    bno055_update();
+    bno_update();
     // debug_data();
     // debug_wireless_com();
     telemetry_data();
     set_control_reference();
     drone_controller();
     // thrust_check(ch_throttle);
-    // writeMotors(motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm);
+    writeMotors(motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm);
     // if (millis() - debug_timer >= 100) { 
     //     debug_data(); // Mencetak ke USB (Serial Monitor)
         // debug_timer = millis(); // Reset timer
@@ -235,6 +233,5 @@ void loop() {
     // telemetry_data();
     // }
     
-    // writeMotors(motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm);
 
 }

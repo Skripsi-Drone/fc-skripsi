@@ -67,11 +67,11 @@ void remote_loop() {
       failsafe();
       return;
     }
-    for (int i=0;i<5;i++) {
-        Serial.print(data.ch[i]);
-        Serial.print(" ");
-    }
-    Serial.println();
+    // for (int i=0;i<5;i++) {
+    //     Serial.print(data.ch[i]);
+    //     Serial.print(" ");
+    // }
+    // Serial.println();
 
     ch_roll = data.ch[0] * 0.611f + 895;
     ch_pitch = data.ch[1] * 0.611f + 895;
@@ -104,7 +104,7 @@ float pitch_scaler() {
 }
 
 float yaw_scaler() {
-    return (ch_yaw - 1500) / 500.0f;
+    return -1.0f * ((ch_yaw - 1500) / 500.0f);
 }
 
 #endif

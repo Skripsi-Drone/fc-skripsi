@@ -15,8 +15,8 @@
 // ini udh bnr kl di frame gede, yg di comment hasil tracing pin pwm ke teensy
 #define MOTOR1 11
 #define MOTOR2 10 //10
-#define MOTOR3 9 //9
-#define MOTOR4 6 //6
+#define MOTOR3 4 //9
+#define MOTOR4 3 //6
 
 Servo motor1, motor2, motor3, motor4;
 
