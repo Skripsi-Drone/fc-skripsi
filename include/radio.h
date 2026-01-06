@@ -11,6 +11,7 @@ bfs::SbusData data;
 bool signal_lost = false;
 int16_t ch_roll, ch_pitch, ch_throttle, ch_yaw;
 bool arming;
+bool flip;
 bool alt_hold_mode = false;
 unsigned long arrival_time;
 
@@ -20,6 +21,7 @@ void failsafe() {
     ch_throttle = 1000;
     ch_yaw = 1500;
     arming = false;
+    flip = false;
 }
 
 void remote_setup() {
@@ -86,9 +88,17 @@ void remote_loop() {
     arming = data.ch[4] > 1500 ? true : false;
     if (arming) { digitalWrite(2, HIGH); }
     else { digitalWrite(2, LOW); }
-    alt_hold_mode = data.ch[5] > 1500 ? true : false;
+
+//     if (arming && data.ch[5] > 1500) {
+//         flip = true;
+//     } 
+//     else {
+//         flip = false;
+//     }
+//   }
+    // alt_hold_mode = data.ch[5] > 1500 ? true : false;
     //tambah trigger/switch buat ganti mode, pakai SC aja
-  }
+    }
 }
 
 float roll_scaler() {

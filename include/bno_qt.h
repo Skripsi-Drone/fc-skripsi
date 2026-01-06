@@ -11,7 +11,7 @@ Adafruit_BNO055 bno;
 
 uint8_t sys, gyro, accel, mag;
 float gxrs, gyrs, gzrs;
-float roll, pitch, yaw;
+float roll, pitch, yaw, yaw_raw;
 float yaw_sp, last_yaw;
 float yaw_offset = 0; 
 bool initial_tare_done = false;
@@ -56,7 +56,7 @@ void bno_update() {
     float gyro_x = gyroEvent.gyro.x;
     float gyro_y = gyroEvent.gyro.y;
     float gyro_z = gyroEvent.gyro.z;    
-    gxrs = gyro_y;
+    gxrs = gyro_y * RAD_TO_DEG;
     gyrs = -gyro_x;
     gzrs = gyro_z;  
     //read qt & swap
@@ -88,7 +88,7 @@ void bno_update() {
     // konversi euler radian ke derajat
     roll  = -1 * (roll_rad * RAD_TO_DEG); //krn kanan kiri kebalik pos/neg nya
     pitch = pitch_rad * RAD_TO_DEG; 
-    float yaw_raw = yaw_rad * RAD_TO_DEG;
+    yaw_raw = yaw_rad * RAD_TO_DEG;
     if(yaw_raw < 0) yaw_raw += 360; // Normalisasi 0-360
 
     //Auto Tare (Set 0 saat kalibrasi selesai)

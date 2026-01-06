@@ -42,6 +42,8 @@ float motor_speed_squared[4];
 float motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm;
 uint8_t t_now, t_last, dt;
 
+int flip_phase = 0;
+
 //f450                               U1      U2         U3         U4  
 // const double A_invers[4][4] = {{292600,  1300300,  1300300,  6283300},
 //                                {292600, -1300300,  1300300, -6283300},
@@ -49,19 +51,19 @@ uint8_t t_now, t_last, dt;
 //                                {292600,  1300300, -1300300, -6283300}};
 
 //zmr250 (roll pake arm length y, kl jelek ganti pakai arm length x) yg command np sesuai baris bkn column beda sm notes
-const double A_invers[4][4] = {{206611.57024793,  -2035581.97288605,  2623638.98727535,  17730496.45390071}, //PNPP PPPP PPNN PPNP PPPP PPPN  switch PPPN
-                               {206611.57024793,   2035581.97288605,  2623638.98727535, -17730496.45390071}, //PPPN PNNPP PNPP PNNN PNPN PNPP switch PNPP
-                               {206611.57024793,  -2035581.97288605, -2623638.98727535, -17730496.45390071}, //PPNP PPNN PPPN PNPN PPNN PPNP  switch PNNN
-                               {206611.57024793,   2035581.97288605, -2623638.98727535,  17730496.45390071}};//PNNN PNPN PNNP PPPP PNNP PNNN  switch PPNP
+const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.98727535, -17730496.45390071},
+                               {206611.57024793,   2035581.97288605,  2623638.98727535,  17730496.45390071}, 
+                               {206611.57024793,   2035581.97288605, -2623638.98727535,  -17730496.45390071},
+                               {206611.57024793,   -2035581.97288605, -2623638.98727535, 17730496.45390071}};
 struct Gains {
-    float alt   = 0.0f;
-    float vz    = 0.0f;
-    float roll  = 5.477;//5.916; //5.477 (FINAL)
-    float p     = 3.027;//4.144; //3.027 (FINAL)
-    float pitch = 5.196; //4.8 //2.1 //5.196 (FINAL)
-    float q     = 3.341; //1.05 //2.7 //max 1.7 dengan p 3.00 //1.3 oke //3.341 (FINAL)
-    float yaw   = 3.000; // 6.324
-    float r     = 1.079; // 1.160
+    float alt = 0.0f;
+    float vz = 0.0f;
+    float roll = 5.5; //7 6.5 5.5
+    float p = 1.97; //2.14
+    float pitch = 0.0; //17.2;
+    float q = 0.0; //4.3
+    float yaw = 0.0; // 6.324
+    float r = 0.0; // 1.160
 } gain;
 
 float constrain_value(float value, float min, float max) {
@@ -105,7 +107,7 @@ void drone_controller() {
     error_roll = roll - setpoint_roll;
     error_roll_rate = -gxrs;
     error_pitch = pitch - setpoint_pitch;
-    error_pitch_rate = -gyrs;
+    error_pitch_rate = gyrs;
     error_yaw = yaw - setpoint_yaw;
     error_yaw_rate = -gzrs;
     // float error_altitude = target_alt - altitude;
@@ -140,12 +142,44 @@ void drone_controller() {
 
 }
 
+void flip_using_lqr() {
+    if (!flip) {
+        flip_phase = 0;
+        return; // Hanya lakukan flip jika flag flip diaktifkan
+    }
+
+    if (roll < 45.0) {
+        setpoint_roll = 90.0; // Target roll untuk flip
+        ch_throttle = 1600;
+        flip_phase = 1;
+    } 
+    else if (roll >= 45.0 && roll < 135.0) {
+        setpoint_roll = 180.0; // Target roll untuk flip
+        ch_throttle = 1100;
+        flip_phase = 2;
+    }
+    else if (roll >= 135.0 || roll < -135.0) {
+        setpoint_roll = -90.0;
+        ch_throttle = 1100;
+        flip_phase = 3;
+    }
+    else if (roll >= -135.0 && roll < 0.0) {
+        setpoint_roll = 0.0;
+        ch_throttle = 1600;
+        flip_phase = 4;
+    }
+}
+
 void set_control_reference() {
-    setpoint_roll = roll_scaler() * MAX_ROLL;
-    setpoint_pitch = -pitch_scaler() * MAX_PITCH;
-    setpoint_yaw = yaw_scaler() * MAX_YAW;
-    // setpoint_yaw = yaw_sp;
-//     if (setpoint_yaw > 180.0f) { setpoint_yaw -= 360.0f; }
-//     if (setpoint_yaw < -180.0f) { setpoint_yaw += 360.0f; }
+    if (flip) {
+        flip_using_lqr();
+        setpoint_pitch = 0.0;
+        setpoint_yaw = 0.0;
+    }
+    else {
+        setpoint_roll = roll_scaler() * MAX_ROLL;
+        setpoint_pitch = -pitch_scaler() * MAX_PITCH;
+        setpoint_yaw = yaw_scaler() * MAX_YAW;
+    }
 }
 #endif
