@@ -50,20 +50,20 @@ int flip_phase = 0;
 //                                {292600, -1300300, -1300300,  6283300},
 //                                {292600,  1300300, -1300300, -6283300}};
 
-//zmr250 (roll pake arm length y, kl jelek ganti pakai arm length x) yg command np sesuai baris bkn column beda sm notes
+//zmr250 (roll pake arm length x)
 const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.98727535, -17730496.45390071},
                                {206611.57024793,   2035581.97288605,  2623638.98727535,  17730496.45390071}, 
                                {206611.57024793,   2035581.97288605, -2623638.98727535,  -17730496.45390071},
                                {206611.57024793,   -2035581.97288605, -2623638.98727535, 17730496.45390071}};
 struct Gains {
-    float alt = 0.0f;
-    float vz = 0.0f;
-    float roll = 5.5; //7 6.5 5.5
-    float p = 1.97; //2.14
-    float pitch = 0.0; //17.2;
-    float q = 0.0; //4.3
-    float yaw = 0.0; // 6.324
-    float r = 0.0; // 1.160
+    float alt   = 0.0f;
+    float vz    = 0.0f;
+    float roll  = 2.80; //2.65
+    float p     = 1.40; //1.20 1.53 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    float pitch = 2.80; //2.45
+    float q     = 1.10; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
+    float yaw   = 0.0; // 6.324
+    float r     = 0.0; // 1.160
 } gain;
 
 float constrain_value(float value, float min, float max) {

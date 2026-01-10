@@ -57,8 +57,8 @@ void bno_update() {
     float gyro_y = gyroEvent.gyro.y;
     float gyro_z = gyroEvent.gyro.z;    
     gxrs = gyro_y * RAD_TO_DEG;
-    gyrs = -gyro_x;
-    gzrs = gyro_z;  
+    gyrs = -gyro_x * RAD_TO_DEG;
+    gzrs = gyro_z * RAD_TO_DEG;  
     //read qt & swap
     float qw = quat.w();
     float qx = quat.x();
