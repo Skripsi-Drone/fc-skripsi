@@ -19,6 +19,7 @@
 #define MAX_YAW 25.0f
 #define MIN_PWM 1000
 #define MAX_PWM 1800
+#define MAX_PWM_FLIP 2000
 #define MAX_THRUST 18.24f
 
 float u1, u2, u3, u4;
@@ -43,12 +44,6 @@ float motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm;
 uint8_t t_now, t_last, dt;
 
 int flip_phase = 0;
-
-//f450                               U1      U2         U3         U4  
-// const double A_invers[4][4] = {{292600,  1300300,  1300300,  6283300},
-//                                {292600, -1300300,  1300300, -6283300},
-//                                {292600, -1300300, -1300300,  6283300},
-//                                {292600,  1300300, -1300300, -6283300}};
 
 //zmr250 (roll pake arm length x)
 const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.98727535, -17730496.45390071},
@@ -160,12 +155,12 @@ void flip_using_lqr() {
     }
     else if (roll >= 135.0 || roll < -135.0) {
         setpoint_roll = -90.0;
-        ch_throttle = 1100;
+        ch_throttle = 1200;
         flip_phase = 3;
     }
     else if (roll >= -135.0 && roll < 0.0) {
         setpoint_roll = 0.0;
-        ch_throttle = 1600;
+        ch_throttle = 1700;
         flip_phase = 4;
     }
 }

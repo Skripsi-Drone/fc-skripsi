@@ -92,69 +92,45 @@ void debug_data() {
 }
 
 void telemetry_data() {
-        timer_now = millis();
-        dt = timer_now - timer_last;
-        if (dt >= 50) {
-        TELEMETRY.print(millis());
-        TELEMETRY.print(" ");
-        TELEMETRY.print("Clb:");
-        TELEMETRY.print(sys); 
-        TELEMETRY.print("/"); 
-        TELEMETRY.print(gyro); 
-        TELEMETRY.print("/"); 
-        TELEMETRY.print(accel); 
-        TELEMETRY.print("/"); 
-        TELEMETRY.print(mag);
+    static bool last_arming = false;
+
+    // Logika Event ARM/DISARM biarkan terpisah atau ikut streaming (opsional)
+    // Di sini kita biarkan event dikirim terpisah seperti kode asli Anda
+    if (arming != last_arming) {
         if (arming) {
-            TELEMETRY.print("A");
+            TELEMETRY.println("ARM");
         } else {
-            TELEMETRY.print("D");
+            TELEMETRY.println("DISARM");
         }
-        // TELEMETRY.print(" Phs:");
-        // TELEMETRY.print(flip_phase);
-        TELEMETRY.print(" R:"); 
-        TELEMETRY.print(roll);
-        TELEMETRY.print(" P:"); 
-        TELEMETRY.print(pitch);
-        TELEMETRY.print(" Y:"); 
-        TELEMETRY.print(yaw);
-        TELEMETRY.print(" x:");
-        TELEMETRY.print(gxrs); //r
-        TELEMETRY.print(" y:");
-        TELEMETRY.print(gyrs); //p
-        TELEMETRY.print(" z:");
-        TELEMETRY.print(gzrs); //y
-
-        //aksi
-        TELEMETRY.print("m1:");
-        TELEMETRY.print(motor1_pwm);
-        TELEMETRY.print(",");
-        TELEMETRY.print("m2:");
-        TELEMETRY.print(motor2_pwm);
-        TELEMETRY.print(",");
-        TELEMETRY.print("m3:");
-        TELEMETRY.print(motor3_pwm);
-        TELEMETRY.print(",");
-        TELEMETRY.print("m4:");
-        TELEMETRY.print(motor4_pwm);
-
-        TELEMETRY.print(" ch: ");
-        TELEMETRY.print(ch_throttle);
-        TELEMETRY.print(" ");
-        TELEMETRY.print(ch_roll);
-        TELEMETRY.print(" ");
-        TELEMETRY.print(ch_pitch);
-        TELEMETRY.print(" ");
-        TELEMETRY.print(ch_yaw);
-        TELEMETRY.print(" er:");
-        TELEMETRY.print(error_roll); 
-        TELEMETRY.print(" ep");
-        TELEMETRY.print(error_pitch); 
-        TELEMETRY.print(" ey");
-        TELEMETRY.print(error_yaw);
-        TELEMETRY.println();
-        timer_last = timer_now;
+        last_arming = arming;
     }
+
+    // --- MULAI PAKET DATA ---
+    // HEAD (Tanda Awal)
+    TELEMETRY.print("<"); 
+
+    TELEMETRY.print(millis()); TELEMETRY.print(" ");  
+    TELEMETRY.print(arming); TELEMETRY.print(" ");
+
+    TELEMETRY.print(roll); TELEMETRY.print(" ");
+    TELEMETRY.print(pitch); TELEMETRY.print(" ");
+    TELEMETRY.print(yaw); TELEMETRY.print(" ");
+
+    TELEMETRY.print(gxrs); TELEMETRY.print(" ");
+    TELEMETRY.print(gyrs); TELEMETRY.print(" ");
+    TELEMETRY.print(gzrs); TELEMETRY.print(" ");
+
+    TELEMETRY.print(error_roll); TELEMETRY.print(" ");
+    TELEMETRY.print(error_pitch); TELEMETRY.print(" ");
+    TELEMETRY.print(error_yaw); TELEMETRY.print(" ");
+
+    TELEMETRY.print(motor1_pwm); TELEMETRY.print(" ");
+    TELEMETRY.print(motor2_pwm); TELEMETRY.print(" ");
+    TELEMETRY.print(motor3_pwm); TELEMETRY.print(" ");
+    TELEMETRY.print(motor4_pwm); // Hapus spasi terakhir agar rapi
+
+    // TAIL (Tanda Akhir) + Newline
+    TELEMETRY.println(">"); 
 }
 
 void drone_setup() {
@@ -172,7 +148,6 @@ void setup() {
     if (M_CALIB) {
         motor_calibration();
     }
-    
     pinMode(LED, OUTPUT);
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
