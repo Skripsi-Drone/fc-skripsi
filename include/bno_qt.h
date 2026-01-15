@@ -88,7 +88,7 @@ void bno_update() {
     // konversi euler radian ke derajat
     roll  = -1 * (roll_rad * RAD_TO_DEG); //krn kanan kiri kebalik pos/neg nya
     pitch = pitch_rad * RAD_TO_DEG; 
-    yaw_raw = yaw_rad * RAD_TO_DEG;
+    yaw_raw = -1 * (yaw_rad * RAD_TO_DEG);
     if(yaw_raw < 0) yaw_raw += 360; // Normalisasi 0-360
 
     //Auto Tare (Set 0 saat kalibrasi selesai)
@@ -106,7 +106,4 @@ void bno_update() {
     if (yaw > 180) {
         yaw -= 360;
     }
-    yaw = 0.95 * last_yaw + 0.05 * yaw; // low pass filter biar bacanya ga responsif bgt
-    last_yaw = yaw;
-    yaw_sp = yaw - last_yaw;
 }

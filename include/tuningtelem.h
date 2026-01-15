@@ -50,19 +50,19 @@ void telemetry_gain_tuning() {
                     break;
                 case 'T':
                 case 't':
-                    modifygain(gain.yaw, 0.01);
+                    modifygain(gain.yaw, 0.001);
                     break;
                 case 'G':
                 case 'g':
-                    modifygain(gain.yaw, -0.01);
+                    modifygain(gain.yaw, -0.001);
                     break;
                 case 'Y':
                 case 'y':
-                    modifygain(gain.r, 0.01);
+                    modifygain(gain.r, 0.001);
                     break;
                 case 'H':
                 case 'h':
-                    modifygain(gain.r, -0.01);
+                    modifygain(gain.r, -0.001);
                     break;
                 default:
                     break;
@@ -79,21 +79,25 @@ void telemetry_gain_tuning() {
     Serial2.print(" ");
     Serial2.print(gain.q);
     Serial2.print(" ");
-    Serial2.print(gain.yaw);
+    Serial2.print(gain.yaw, 4);
     Serial2.print(" ");
-    Serial2.print(gain.r);
+    Serial2.print(gain.r, 4);
     Serial2.print(" R:");
     Serial2.print(roll);
-    Serial2.print(" gx:");
-    Serial2.print(gxrs);
     Serial2.print(" P:");
     Serial2.print(pitch);
-    Serial2.print(" gy:");
-    Serial2.print(gyrs);
     Serial2.print(" Y:");
     Serial2.print(yaw);
+    Serial2.print(" gx:");
+    Serial2.print(gxrs);
+    Serial2.print(" gy:");
+    Serial2.print(gyrs);
     Serial2.print(" gz:");
     Serial2.print(gzrs);
+    // Serial2.print(" pyaw:");
+    // Serial2.print(p_yaw);
+    // Serial2.print(" dyaw:");
+    // Serial2.print(d_yaw);
     // Serial2.print(" Error:");
     // Serial2.print(error_roll);
     // Serial2.print(" ");

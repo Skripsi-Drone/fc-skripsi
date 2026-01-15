@@ -89,13 +89,12 @@ void remote_loop() {
     if (arming) { digitalWrite(2, HIGH); }
     else { digitalWrite(2, LOW); }
 
-//     if (arming && data.ch[5] > 1500) {
-//         flip = true;
-//     } 
-//     else {
-//         flip = false;
-//     }
-//   }
+    // if (arming && data.ch[5] > 1500) {
+    //     flip = true;
+    // } 
+    // else {
+    //     flip = false;
+    // }
     // alt_hold_mode = data.ch[5] > 1500 ? true : false;
     //tambah trigger/switch buat ganti mode, pakai SC aja
     }

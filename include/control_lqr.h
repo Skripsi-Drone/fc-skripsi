@@ -6,21 +6,12 @@
 #include "Radio.h"
 #include "bno_qt.h"
 
-#define INTEGRAL_LIMIT 10.0f
-#define MAX_VALUE 50.0f
-#define MIN_VALUE -50.0f
-#define MIN_THRUST 30.0f
-#define MAX_MOTOR_SPEED 1025.38f
-#define MIN_MOTOR_SPEED 0.0f
-#define MAX_VALUE_YAW 50.0f
-#define MIN_VALUE_YAW -50.0f
 #define MAX_ROLL 35.0f
 #define MAX_PITCH 35.0f
-#define MAX_YAW 25.0f
+#define MAX_YAW 35.0f
 #define MIN_PWM 1000
 #define MAX_PWM 1800
 #define MAX_PWM_FLIP 2000
-#define MAX_THRUST 18.24f
 
 float u1, u2, u3, u4;
 float roll_integrator, pitch_integrator, yaw_integrator, altitude_integrator;
@@ -34,14 +25,12 @@ float error_roll_rate, error_pitch_rate, error_yaw_rate;
 float state_yaw;
 float altitude;
 float alt_last, alt_now, alt_vel;
-float ki_roll = 0.0f;
-float ki_pitch = 0.0f;
 float motor_speed[4];
 float motor_thrust[4];
 float motor_speed_rpm[4];
 float motor_speed_squared[4];
 float motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm;
-uint8_t t_now, t_last, dt;
+uint32_t t_now, t_last, dt;
 
 int flip_phase = 0;
 
@@ -53,12 +42,12 @@ const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.9
 struct Gains {
     float alt   = 0.0f;
     float vz    = 0.0f;
-    float roll  = 2.80; //2.65
-    float p     = 1.40; //1.20 1.53 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    float roll  = 2.77; //2.65
+    float p     = 1.84; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
     float pitch = 2.80; //2.45
-    float q     = 1.10; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
-    float yaw   = 0.0; // 6.324
-    float r     = 0.0; // 1.160
+    float q     = 1.85; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
+    float yaw   = 0.141; // 0.140
+    float r     = 0.043; // 0.040
 } gain;
 
 float constrain_value(float value, float min, float max) {
@@ -76,12 +65,17 @@ void drone_controller() {
     dt = t_now - t_last;
     t_last = t_now;
 
+    float dt_sec; 
+    if (dt > 0) {
+        dt_sec = (float)dt * 1e-6f; // Konversi mikrodetik ke detik
+    } else {
+        dt_sec = 0.004f; // Default 4ms jika dt 0 (safety)
+    }
+
     setpoint_roll_last = setpoint_roll_now;
     setpoint_roll_now = setpoint_roll;
-
     setpoint_pitch_last = setpoint_pitch_now;
     setpoint_pitch_now = setpoint_pitch;
-
     setpoint_yaw_last = setpoint_yaw_now;
     setpoint_yaw_now = setpoint_yaw;
 
@@ -135,6 +129,12 @@ void drone_controller() {
     motor3_pwm = constrain_value(motor3_pwm, MIN_PWM, MAX_PWM);
     motor4_pwm = constrain_value(motor4_pwm, MIN_PWM, MAX_PWM);
 
+    if (flip == true) {
+        motor1_pwm = constrain_value(motor1_pwm, MIN_PWM, MAX_PWM_FLIP);
+        motor2_pwm = constrain_value(motor2_pwm, MIN_PWM, MAX_PWM_FLIP);
+        motor3_pwm = constrain_value(motor3_pwm, MIN_PWM, MAX_PWM_FLIP);
+        motor4_pwm = constrain_value(motor4_pwm, MIN_PWM, MAX_PWM_FLIP);
+    }
 }
 
 void flip_using_lqr() {
@@ -145,7 +145,7 @@ void flip_using_lqr() {
 
     if (roll < 45.0) {
         setpoint_roll = 90.0; // Target roll untuk flip
-        ch_throttle = 1600;
+        ch_throttle = 1100;
         flip_phase = 1;
     } 
     else if (roll >= 45.0 && roll < 135.0) {
@@ -155,12 +155,12 @@ void flip_using_lqr() {
     }
     else if (roll >= 135.0 || roll < -135.0) {
         setpoint_roll = -90.0;
-        ch_throttle = 1200;
+        ch_throttle = 1100;
         flip_phase = 3;
     }
     else if (roll >= -135.0 && roll < 0.0) {
         setpoint_roll = 0.0;
-        ch_throttle = 1700;
+        ch_throttle = 1100;
         flip_phase = 4;
     }
 }
