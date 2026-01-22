@@ -16,13 +16,15 @@ EVENT_FILE  = os.path.join(BASE_DIR, "events.txt")
 COLUMNS = [
     "millis",
     "armed",
-    "fp",
-    "roll",
+    "flip",
+    "phase",
+    "sp_r_r",
     "gx",
-    # "spr",
-    # "err_roll",
-    "u2,"
-    "m1, m2"
+    "er",
+    "sp_r",
+    "roll",
+    "ch_thr",
+    "m1, m2, m3, m4"
 ]
 
 ser = serial.Serial(PORT, BAUD, timeout=1)
@@ -30,8 +32,6 @@ time.sleep(2) # Tunggu serial stabil
 
 print(f"Saving to: {OUTPUT_FILE}")
 
-# --- WAKTU MULAI DITENTUKAN DISINI ---
-# Ini titik 0 ms kita
 start_time = time.time()
 
 # Counter untuk flush data

@@ -7,13 +7,13 @@
 #include "actu_setup.h"
 #include "radio.h"
 
-#define MAX_ROLL 35.0f
-#define MAX_PITCH 35.0f
-#define MAX_YAW 35.0f
-#define MIN_PWM 1000
-#define MAX_PWM 1800
+#define MAX_ROLL     35.0f
+#define MAX_PITCH    35.0f
+#define MAX_YAW      35.0f
+#define MIN_PWM      1000
+#define MAX_PWM      1800
 #define MAX_PWM_FLIP 2000
-#define I_YAW_MAX 30.0f //trial
+#define I_YAW_MAX    30.0f 
 
 float setpoint_roll, setpoint_pitch, setpoint_yaw, target_alt;
 float setpoint_roll_last, setpoint_pitch_last, setpoint_yaw_last, target_alt_last;
@@ -29,9 +29,6 @@ uint32_t t_now, t_last, dt;
 float dt_sec;
 float p_roll, d_roll, p_pitch, d_pitch, p_yaw, d_yaw, i_yaw;
 float yaw_integrator = 0.0f;
-float gx_prev, er;
-float desired_roll_rate = 100.0f;
-float i_rate_roll = 0.0f;
 
 enum ControlMode {
     MODE_HOVER = 0,
@@ -48,13 +45,18 @@ enum FlipPhase : uint8_t {
     FINISH
 }; 
 FlipPhase fp = IDLE;
-uint32_t flip_phase_start = 0;
-bool flip_pulse_active = false;
-int flip_pulse_delta = 450; //360 | pwm units (tune)
-uint32_t flip_climb_ms = 110; //100 | duration climb
-uint32_t flip_swing_ms  = 80; // 100 | duration swing
-uint32_t flip_recover_ms = 250;
-float U2_MAX = 0.0005; //0.0002
+uint32_t flip_phase_start   = 0;
+bool flip_pulse_active      = false;
+int flip_pulse_delta        = 100; //350 25% 300 30% 250 35% 200 45% 150 55% 100 65% OK | tambahan pwm
+uint32_t flip_climb_ms      = 150; //100 110 | ms, kalo kekecilan gagal flip, kegedean over flip
+uint32_t flip_swing_ms      = 80; // 100 | ms, kalo kekecilan nanti recovery pas di tengah2 flip 
+uint32_t flip_recover_ms    = 250; // | timeout buat recovery sblm pindah ke hover lagi
+float gx_prev, er;
+float i_rate_roll               = 0.0f;
+float desired_roll_rate         = 0.0f;
+float desired_roll_rate_climb   = 250.0f; //400
+float desired_roll_rate_recover = 300.0f;
+float U2_MAX = 0.0002; //0.0002
 
 //zmr250 (roll pake arm length x)
 const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.98727535, -17730496.45390071},
@@ -75,11 +77,11 @@ struct AngleGains {
 } anglegain;
 
 struct RollRateGains {
-    float P    = 2.00;      //1.21; 3.83  //tuningan terakhir 21 jan
+    float P    = 1.91;      //1.21; 3.83 2.00 |tuningan terakhir 21 jan
     float D    = 0.0101;    //0.0101
-    float I    = 0.50;      //0.63
+    float I    = 0.49;      //0.63 0.50 |bisa dikecilin lg kalo ga ngerem2
     float IMAX = 500.0;
-    float max_rate = 220.0; // deg/s 
+    float max_rate = 500.0; //220 deg/s 
 } rategain;
 
 float constrain_value(float value, float min, float max) {
@@ -97,8 +99,6 @@ void enter_flip() {
     fp = CLIMB;
     flip_phase_start = millis();
     flip_pulse_active = true;
-    // set aggressive desired rate for phase 1 (can also be 0 and rely on pulse)
-    desired_roll_rate = 300.0f; // deg/s (tune)
 }
 
 void update_flip() {
@@ -109,11 +109,9 @@ void update_flip() {
 
     switch (fp) {
         case CLIMB:
-            // pulse phase: both pulse_active and high desired rate
             flip_pulse_active = true;
-            desired_roll_rate = 600.0f; //tune
+            desired_roll_rate = desired_roll_rate_climb;
             if (elapsed > flip_climb_ms) {
-                // go to coast
                 fp = SWING;
                 flip_phase_start = now;
                 flip_pulse_active = false;
@@ -123,19 +121,17 @@ void update_flip() {
             break;
 
         case SWING:
-            // coast: remove active forcing, let inertia act
+            // remove active forcing, let inertia act
             desired_roll_rate = 0.0f; // let tumble naturally
             flip_pulse_active = false;
             if (elapsed > flip_swing_ms) {
                 fp = RECOVER;
                 flip_phase_start = now;
-                // set gentle desired rate or angle target for recovery
-                desired_roll_rate = -300.0f; // negative to brake and reverse, tune
+                desired_roll_rate = -desired_roll_rate_recover;
             }
             break;
 
         case RECOVER:
-            // recovery: try to slow and bring back to stable orientation
             flip_pulse_active = false;
             if (elapsed > flip_recover_ms) {
                 fp = FINISH;
@@ -144,8 +140,7 @@ void update_flip() {
             break;
 
         case FINISH:
-            // finish: leave flip mode and go to recovery/hover
-            ctrl_mode = MODE_RECOVERY; // or MODE_HOVER if immediate
+            ctrl_mode = MODE_RECOVERY; 
             fp = IDLE;
             flip_pulse_active = false;
             break;
@@ -182,14 +177,13 @@ void roll_control() {
 
         float u2_raw = (rategain.P * er + i_rate_roll - rategain.D * dgx)/10'000'000;
         u2 = constrain(u2_raw, -U2_MAX, U2_MAX);
-    } 
-    //rate based roll controller (bukan angle)
+    }
     else { 
         if (was_flip) {
             was_flip = false;
             i_rate_roll = 0.0;
         }
-        /* Roll control rate based
+        /* Roll control (rate based)
         //pure rate mapping
         float roll_cmd = map(ch_roll, 1000, 2000, -rategain.max_rate, rategain.max_rate);
         setpoint_roll_rate = constrain(roll_cmd, -rategain.max_rate, rategain.max_rate);
@@ -220,7 +214,7 @@ void roll_control() {
         u2 = constrain(u2_raw, -U2_MAX, U2_MAX);
         */
 
-        //Roll control angle based
+        //Roll control (angle based)
         setpoint_roll_last = setpoint_roll_now;
         setpoint_roll_now = setpoint_roll;
 
@@ -305,10 +299,9 @@ void drone_controller(){
     if (dt_sec < 0.0005f) dt_sec = 0.0005f;
     if (dt_sec > 0.01f)   dt_sec = 0.01f;
 
-    update_flip(); //ini jgn dikomen kl flip neng
     set_control_reference();
     roll_control();
-    // pitch_yaw_control();
+    // pitch_yaw_control(); //di testbench off
     motor_mixer();
 }
 

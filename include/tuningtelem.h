@@ -43,20 +43,18 @@ void telemetry_gain_tuning() {
             /*desired roll rate < 600: naikin flip pulse delta / gain P
               desired roll rate >= 600: naikin gain D / U2 max
               flip < 360: gedein flip climb ms / flip pulse delta */
-            // Flip Params
-            
-            case 'r': modifygain(flip_pulse_delta,   20); break;
-            case 'f': modifygain(flip_pulse_delta,  -20); break;
+              // Flip Params
+            case 'r': modifygain(flip_pulse_delta,   10); break;
+            case 'f': modifygain(flip_pulse_delta,  -10); break;
             case 't': modifygain(flip_climb_ms,      10); break;
             case 'g': modifygain(flip_climb_ms,     -10); break;
-            case 'y': modifygain(desired_roll_rate,  20); break;
-            case 'h': modifygain(desired_roll_rate, -20); break;
-            // case 'e': modifygain(rategain.P,      0.01); break;
-            // case 'd': modifygain(rategain.P,     -0.01); break;
-            // case 'r': modifygain(rategain.D,      0.0001); break;
-            // case 'f': modifygain(rategain.D,     -0.0001); break;
-            case 'u': modifygain(U2_MAX,          0.0003); break;
-            case 'j': modifygain(U2_MAX,         -0.0003); break;
+            case 'y': modifygain(desired_roll_rate_climb,  10); break;
+            case 'h': modifygain(desired_roll_rate_climb, -10); break;
+            case 'u': modifygain(desired_roll_rate_recover,  10); break;
+            case 'j': modifygain(desired_roll_rate_recover, -10); break;
+            case 'i': modifygain(U2_MAX,          0.0003); break;
+            case 'k': modifygain(U2_MAX,         -0.0003); break;
+
             /* 
             // Angle Gains
             case 'q': modifygain(gain.roll,   0.01); break;
@@ -78,25 +76,26 @@ void telemetry_gain_tuning() {
     }
 
     // Roll Rate gains
-    Serial2.print(millis());            Serial2.print(" ");
-    Serial2.print(fp);                  Serial2.print(" ");
-    Serial2.print(flip_switch_on);      Serial2.print(" ");
-    Serial2.print(rategain.P, 2);       Serial2.print(" ");
-    Serial2.print(rategain.D, 5);       Serial2.print(" ");
-    Serial2.print(rategain.I, 2);       Serial2.print(" ");
-    Serial2.print(rategain.IMAX);       Serial2.print(" ");
-    Serial2.print(rategain.max_rate);   Serial2.print(" ");
-
-    Serial2.print(" fpd:");             Serial2.print(flip_pulse_delta);
-    Serial2.print(" fc:");              Serial2.print(flip_climb_ms);
-    Serial2.print(" u2:");              Serial2.print(U2_MAX, 5);
-
-    Serial2.print(" gx:");              Serial2.print(gxrs);
-    Serial2.print(" drr:");             Serial2.print(desired_roll_rate);
-    Serial2.print(" er:");              Serial2.print(er);
-    Serial2.print(" R:");               Serial2.print(roll);
+    Serial2.print("<");
+    Serial2.print(millis());            Serial2.print(",");
+    Serial2.print(flip_switch_on);      Serial2.print(",");
+    Serial2.print(fp);                  Serial2.print(",");
+    Serial2.print(rategain.P, 2);       Serial2.print(",");
+    Serial2.print(rategain.D, 5);       Serial2.print(",");
+    Serial2.print(rategain.I, 2);       Serial2.print(",");
+    Serial2.print(rategain.IMAX);       Serial2.print(",");
+    Serial2.print(rategain.max_rate);   Serial2.print(",");
 
     // Flip Params
+    Serial2.print(",fpd:");             Serial2.print(flip_pulse_delta);
+    Serial2.print(",fc:");              Serial2.print(flip_climb_ms);
+    Serial2.print(",dc:");              Serial2.print(desired_roll_rate_climb);
+    Serial2.print(",dr:");              Serial2.print(desired_roll_rate_recover);
+    Serial2.print(",u2:");              Serial2.print(U2_MAX, 5);
+
+    Serial2.print(",gx:");              Serial2.print(gxrs);
+    Serial2.print(",er:");              Serial2.print(er);
+    Serial2.print(",R:");               Serial2.print(roll);
 
     // Angle Gains
     // Serial2.print(millis());            Serial2.print(" ");
@@ -110,7 +109,7 @@ void telemetry_gain_tuning() {
     // Serial2.print("R:");                Serial2.print(roll);
     // Serial2.print("gx:");               Serial2.print(gxrs);
 
-    Serial2.println(" ");
+    Serial2.println(">");
 }
 
 #endif

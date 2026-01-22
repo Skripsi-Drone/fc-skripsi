@@ -51,21 +51,22 @@ void telemetry_data() {
     TELEMETRY.print("<"); 
     TELEMETRY.print(millis());  TELEMETRY.print(" ");  
     TELEMETRY.print(arming);    TELEMETRY.print(" ");
-    // TELEMETRY.print(fp);        TELEMETRY.print(" ");
+    TELEMETRY.print(flip_switch_on); TELEMETRY.print(" ");
+    TELEMETRY.print(fp); TELEMETRY.print(" ");
     
     // TELEMETRY.print(desired_roll_rate);      TELEMETRY.print(" "); //flip
     TELEMETRY.print(setpoint_roll_rate);      TELEMETRY.print(" "); //hover
-
-    // TELEMETRY.print(roll);   TELEMETRY.print(" ");
+    TELEMETRY.print(gxrs);      TELEMETRY.print(" ");
+    TELEMETRY.print(er);        TELEMETRY.print(" ");
+    TELEMETRY.print(setpoint_roll);  TELEMETRY.print(" ");
+    TELEMETRY.print(roll);   TELEMETRY.print(" ");
     // TELEMETRY.print(pitch);  TELEMETRY.print(" ");
     // TELEMETRY.print(yaw);    TELEMETRY.print(" ");
-
-    TELEMETRY.print(gxrs);      TELEMETRY.print(" ");
-    // TELEMETRY.print(gyrs);   TELEMETRY.print(" ");
-    // TELEMETRY.print(gzrs);   TELEMETRY.print(" ");
-
-    TELEMETRY.print(u2,8);      TELEMETRY.print(" ");
-    TELEMETRY.print(roll);      TELEMETRY.print(" ");
+    TELEMETRY.print(ch_throttle);     TELEMETRY.print(" "); 
+    TELEMETRY.print(motor1_pwm);      TELEMETRY.print(" ");
+    TELEMETRY.print(motor2_pwm);      TELEMETRY.print(" ");
+    TELEMETRY.print(motor3_pwm);      TELEMETRY.print(" ");
+    TELEMETRY.print(motor4_pwm);      TELEMETRY.print(" ");
 
     TELEMETRY.println(">"); 
 }
@@ -94,8 +95,8 @@ void loop() {
     remote_loop();
     bno_update();
     // debug_data();
-    // telemetry_data();
-    telemetry_gain_tuning();
+    telemetry_data();
+    // telemetry_gain_tuning();
     // Flip
     if (!arming) {
         ctrl_mode = MODE_HOVER;
@@ -104,8 +105,7 @@ void loop() {
         desired_roll_rate = 0.0f;
     }
     if (flip_event && ctrl_mode == MODE_HOVER && ch_throttle > 1100) {
-        ctrl_mode = MODE_FLIP;
-        fp = IDLE;
+        enter_flip();
         flip_event = false;   // WAJIB reset event
     }
     if (ctrl_mode == MODE_FLIP) {

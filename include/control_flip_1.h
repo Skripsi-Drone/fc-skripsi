@@ -1,5 +1,5 @@
-#ifndef CONTROL_LQR_H
-#define CONTROL_LQR_H
+#ifndef CONTROL_FLIP_1_H
+#define CONTROL_FLIP_1_H
 
 #include <Arduino.h>
 #include <math.h>
