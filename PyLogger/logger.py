@@ -16,10 +16,13 @@ EVENT_FILE  = os.path.join(BASE_DIR, "events.txt")
 COLUMNS = [
     "millis",
     "armed",
-    "roll", "pitch", "yaw",
-    "gx", "gy", "gz",
-    "err_roll", "err_pitch", "err_yaw",
-    "m1", "m2", "m3", "m4"
+    "fp",
+    "roll",
+    "gx",
+    # "spr",
+    # "err_roll",
+    "u2,"
+    "m1, m2"
 ]
 
 ser = serial.Serial(PORT, BAUD, timeout=1)

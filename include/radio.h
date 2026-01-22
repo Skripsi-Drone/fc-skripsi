@@ -11,9 +11,10 @@ bfs::SbusData data;
 bool signal_lost = false;
 int16_t ch_roll, ch_pitch, ch_throttle, ch_yaw;
 bool arming;
-bool flip;
 bool alt_hold_mode = false;
 unsigned long arrival_time;
+bool flip_event;
+bool flip_switch_on = false;
 
 void failsafe() {
     ch_roll = 1500;
@@ -21,7 +22,7 @@ void failsafe() {
     ch_throttle = 1000;
     ch_yaw = 1500;
     arming = false;
-    flip = false;
+    flip_event = false;
 }
 
 void remote_setup() {
@@ -69,7 +70,7 @@ void remote_loop() {
       failsafe();
       return;
     }
-    // for (int i=0;i<5;i++) {
+    // for (int i=0;i<6;i++) {
     //     Serial.print(data.ch[i]);
     //     Serial.print(" ");
     // }
@@ -89,12 +90,18 @@ void remote_loop() {
     if (arming) { digitalWrite(2, HIGH); }
     else { digitalWrite(2, LOW); }
 
-    // if (arming && data.ch[5] > 1500) {
-    //     flip = true;
-    // } 
-    // else {
-    //     flip = false;
-    // }
+    static bool flip_raw_last = false;
+    flip_switch_on = (arming && data.ch[5] > 700 && data.ch[5] < 1230);
+    bool flip_trigger = flip_switch_on && !flip_raw_last;
+    flip_raw_last = flip_switch_on;
+    if (flip_trigger) {
+        flip_event = true;
+    }
+    if (!arming) {
+        flip_raw_last = false;
+        flip_event    = false;
+    }
+    
     // alt_hold_mode = data.ch[5] > 1500 ? true : false;
     //tambah trigger/switch buat ganti mode, pakai SC aja
     }

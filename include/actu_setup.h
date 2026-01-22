@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include <Servo.h>
-#include "Radio.h"
+#include "radio.h"
 
 #define max_roll_corr 512//511
 #define max_pitch_corr 512//513
