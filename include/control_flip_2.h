@@ -67,8 +67,9 @@ const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.9
 struct AngleGains {
     float alt   = 0.0f;
     float vz    = 0.0f;
-    float roll  = 2.77; //2.65
-    float p     = 1.84; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    float roll  = 2.76; //2.65
+    float p     = 1.94; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    //gain damping segini cm cukup buat flip di thr 70
     float pitch = 0.0; //2.80; //2.45
     float q     = 0.0; //1.85; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
     float yaw   = 0.0; //0.141; // 0.140

@@ -14,17 +14,22 @@ EVENT_FILE  = os.path.join(BASE_DIR, "events.txt")
 
 # Kolom harus sesuai urutan di main.cpp
 COLUMNS = [
-    "millis",
-    "armed",
+    "micros",
     "flip",
     "phase",
-    "sp_r_r",
-    "gx",
-    "er",
-    "sp_r",
+    "spf_roll",
+    "roll_abs",
     "roll",
-    "ch_thr",
-    "m1, m2, m3, m4"
+    "pitch",
+    "yaw",
+    "spf_r_rate",
+    "gxrs",
+    "error_roll",
+    "error_r_rate",
+    "m1",
+    "m2", 
+    "m3", 
+    "m4"
 ]
 
 ser = serial.Serial(PORT, BAUD, timeout=1)
