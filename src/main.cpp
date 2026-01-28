@@ -55,14 +55,17 @@ void telemetry_data() {
     TELEMETRY.print(fp); TELEMETRY.print(" ");
     
     TELEMETRY.print(setpoint_flip_roll);      TELEMETRY.print(" "); //flip
+    TELEMETRY.print(roll_relative);      TELEMETRY.print(" "); //hover
     TELEMETRY.print(roll_absolute);      TELEMETRY.print(" "); //hover
     TELEMETRY.print(roll);      TELEMETRY.print(" ");
-    TELEMETRY.print(pitch);      TELEMETRY.print(" ");
-    TELEMETRY.print(yaw);      TELEMETRY.print(" ");
+    // TELEMETRY.print(pitch)AS;      TELEMETRY.print(" ");
+    // TELEMETRY.print(yaw);      TELEMETRY.print(" ");
     TELEMETRY.print(setpoint_flip_roll_rate);  TELEMETRY.print(" ");
-    TELEMETRY.print(gxrs);   TELEMETRY.print(" ");
-    TELEMETRY.print(error_roll);  TELEMETRY.print(" ");
-    TELEMETRY.print(error_roll_rate);    TELEMETRY.print(" ");
+    TELEMETRY.print(-gxrs);   TELEMETRY.print(" ");
+    // TELEMETRY.print(gyrs);   TELEMETRY.print(" ");
+    // TELEMETRY.print(gzrs);   TELEMETRY.print(" ");
+    // TELEMETRY.print(error_roll);  TELEMETRY.print(" ");
+    // TELEMETRY.print(error_roll_rate);    TELEMETRY.print(" ");
     // TELEMETRY.print(u2, 5);        TELEMETRY.print(" ");
     // TELEMETRY.print(ch_throttle);     TELEMETRY.print(" "); 
     TELEMETRY.print(motor1_pwm);      TELEMETRY.print(" ");
@@ -105,7 +108,16 @@ void loop() {
         fp = IDLE;
         flip_start_time = 0;
     }
+    if (ctrl_mode != MODE_FLIP_LQR && ctrl_mode != MODE_FLIP_FUZZY_LPV) {
+         setpoint_flip_roll = 0.0f; // Biar di serial monitor 0
+         setpoint_flip_roll_rate = 0.0f; 
+         roll_relative = 0.0f;
+    }
     if (flip_event && ctrl_mode == MODE_HOVER && ch_throttle > 1100) {
+        flip_start_time = micros();
+        flip_start_angle = roll_absolute;
+        error_roll = 0;
+        error_roll_rate = 0;
         enter_flip();
         flip_event = false;   // WAJIB reset event
     }

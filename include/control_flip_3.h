@@ -32,12 +32,14 @@ float motor1_pwm, motor2_pwm, motor3_pwm, motor4_pwm;
 uint32_t t_now, t_last, dt;
 float dt_sec;
 
-int flip_trajectory_type = FLIP_TRAJECTORY_LINEAR;
+int flip_trajectory_type = FLIP_TRAJECTORY_COSINE;
 float setpoint_flip_roll = 0.0f;
 float setpoint_flip_roll_rate = 0.0f;
 float roll_absolute = 0.0f;
+float roll_relative;
 uint32_t flip_start_time = 0;
-float flip_duration_sec = 0.75f;
+float flip_start_angle = 0;
+float flip_duration_sec = 0.85f; //0.75 0.5 1.0 0.8
 
 enum ControlMode {
     MODE_HOVER = 0,
@@ -65,19 +67,18 @@ const double A_invers[4][4] = {{206611.57024793,   -2035581.97288605,  2623638.9
 struct HoverGains {
     float alt   = 0.0f;
     float vz    = 0.0f;
-    float roll  = 2.76; //2.65
-    float p     = 1.94; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
-    //gain damping segini cm cukup buat flip di thr 70
-    float pitch = 0.0; //2.80; //2.45
-    float q     = 0.0; //1.85; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
-    float yaw   = 0.0; //0.141; // 0.140
-    float r     = 0.0; //0.043; // 0.040
-    float iy    = 0.0; //0.001; //trial
+    float roll  = 2.84; //2.65
+    float p     = 2.37; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    float pitch = 2.87; //2.45
+    float q     = 2.20; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
+    float yaw   = 0.1440; // 0.140
+    float r     = 0.0428; // 0.040 0429
+    float iy    = 0.0004; //trial
 } hovergain; 
 
 struct FlipGains {
-    float roll  = 2.76;
-    float p     = 1.94;
+    float roll  = 5.0; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
+    float p     = 3.3; //1.94 3.5
 } flipgain;
 
 float constrain_value(float value, float min, float max) {
@@ -96,7 +97,7 @@ void enter_flip() {
 
     setpoint_flip_roll = 0.0f;
     setpoint_flip_roll_rate = 0.0f;
-    roll_absolute = 0.0f;
+    // roll_absolute = 0.0f;
     yaw_integrator = 0.0f;
 }
 
@@ -145,18 +146,19 @@ void roll_control() {
 
     if (ctrl_mode == MODE_FLIP_LQR) {
         if (!was_flip) {
-            roll_absolute = 0.0f;
+            // roll_absolute = 0.0f;
             was_flip = true;
         }
 
         roll_absolute += ((-gxrs) * dt_sec);
+        roll_relative = roll_absolute - flip_start_angle;
 
         setpoint_roll_last      = setpoint_roll_now;
         setpoint_roll_now       = setpoint_flip_roll;
         setpoint_roll_rate_last = setpoint_roll_rate_now;
         setpoint_roll_rate_now  = setpoint_flip_roll_rate;
 
-        error_roll      = roll_absolute - setpoint_flip_roll;
+        error_roll      = roll_relative - setpoint_flip_roll;
         error_roll_rate = (-gxrs) - setpoint_flip_roll_rate;
 
         p_roll = -flipgain.roll * error_roll;
@@ -185,6 +187,11 @@ void roll_control() {
         u2 = (p_roll + d_roll)  /10'000'000.0f;
     }
 }
+
+// Fuzzy
+// void set_gain_roll(float Kp_roll) {
+//     flipgain.roll = Kp_roll;
+// }
 
 void pitch_yaw_control() {
     setpoint_pitch_last = setpoint_pitch_now;

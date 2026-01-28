@@ -59,30 +59,35 @@ void telemetry_gain_tuning() {
             */
 
             // Flip Params (edisi 3)
-            case 'q': modifygain(flipgain.roll,   0.01); break;
-            case 'a': modifygain(flipgain.roll,  -0.01); break;
-            case 'w': modifygain(flipgain.p,      0.01); break;
-            case 's': modifygain(flipgain.p,     -0.01); break;
-            case 'e': modifygain(flip_duration_sec,   0.05); break;
-            case 'd': modifygain(flip_duration_sec,  -0.05); break;
+            // case 'q': modifygain(flipgain.roll,   0.01); break;
+            // case 'a': modifygain(flipgain.roll,  -0.01); break;
+            // case 'w': modifygain(flipgain.p,      0.01); break;
+            // case 's': modifygain(flipgain.p,     -0.01); break;
+            // case 'e': modifygain(flip_duration_sec,   0.05); break;
+            // case 'd': modifygain(flip_duration_sec,  -0.05); break;
 
-            /* 
             // Angle Gains
-            case 'q': modifygain(gain.roll,   0.01); break;
-            case 'a': modifygain(gain.roll,  -0.01); break;
-            case 'w': modifygain(gain.p,      0.01); break;
-            case 's': modifygain(gain.p,     -0.01); break;
-            case 'e': modifygain(gain.pitch,  0.01); break;
-            case 'd': modifygain(gain.pitch, -0.01); break;
-            case 'r': modifygain(gain.q,      0.01); break;
-            case 'f': modifygain(gain.q,     -0.01); break;
-            case 't': modifygain(gain.yaw,    0.001); break;
-            case 'g': modifygain(gain.yaw,   -0.001); break;
-            case 'y': modifygain(gain.r,      0.0001); break;
-            case 'h': modifygain(gain.r,     -0.0001); break;
-            case 'u': modifygain(gain.iy,     0.0001); break;
-            case 'j': modifygain(gain.iy,    -0.0001); break; 
-            */
+            case 'q': modifygain(hovergain.roll,   0.01); break;
+            case 'a': modifygain(hovergain.roll,  -0.01); break;
+            case 'w': modifygain(hovergain.p,      0.01); break;
+            case 's': modifygain(hovergain.p,     -0.01); break;
+            case 'e': modifygain(hovergain.pitch,  0.01); break;
+            case 'd': modifygain(hovergain.pitch, -0.01); break;
+            case 'r': modifygain(hovergain.q,      0.01); break;
+            case 'f': modifygain(hovergain.q,     -0.01); break;
+            case 't': modifygain(hovergain.yaw,    0.001); break;
+            case 'g': modifygain(hovergain.yaw,   -0.001); break;
+            case 'y': modifygain(hovergain.r,      0.0001); break;
+            case 'h': modifygain(hovergain.r,     -0.0001); break;
+            case 'u': modifygain(hovergain.iy,     0.0001); break;
+            case 'j': modifygain(hovergain.iy,    -0.0001); break; 
+            case 'i': modifygain(flipgain.roll,   0.05); break;
+            case 'k': modifygain(flipgain.roll,  -0.05); break;
+            case 'o': modifygain(flipgain.p,      0.01); break;
+            case 'l': modifygain(flipgain.p,     -0.01); break;
+            case 'm': modifygain(flip_duration_sec,   0.05); break;
+            case 'n': modifygain(flip_duration_sec,  -0.05); break;
+
         }
     }
 
@@ -109,34 +114,45 @@ void telemetry_gain_tuning() {
     // Serial2.print(",R:");               Serial2.print(roll);
 
     // Flip Params (edisi 3)
-    Serial2.print("<");
-    Serial2.print(micros());            Serial2.print(",");
-    Serial2.print(flip_switch_on);      Serial2.print(",");
-    Serial2.print(fp);                  Serial2.print(",");
-    Serial2.print(flipgain.roll);       Serial2.print(",");
-    Serial2.print(flipgain.p);          Serial2.print(",");
-    Serial2.print(flip_duration_sec);   Serial2.print(",");
-    Serial2.print(",SFR:");             Serial2.print(setpoint_flip_roll);
-    Serial2.print(",Rabs:");            Serial2.print(roll_absolute);
-    Serial2.print(",R:");               Serial2.print(roll);
-    Serial2.print(",SFG:");             Serial2.print(setpoint_flip_roll_rate);
-    Serial2.print(",gx:");              Serial2.print(-gxrs);
-    Serial2.print(",ERR:");             Serial2.print(error_roll);
-    Serial2.print(",ERG:");             Serial2.print(error_roll_rate);
-    Serial2.print(",u2:");              Serial2.print(u2, 5);
-    Serial.print(" ");                  Serial2.print(ch_throttle);
+    // Serial2.print("<");
+    // Serial2.print(micros());            Serial2.print(",");
+    // Serial2.print(flip_switch_on);      Serial2.print(",");
+    // Serial2.print(fp);                  Serial2.print(",");
+    // Serial2.print(flipgain.roll);       Serial2.print(",");
+    // Serial2.print(flipgain.p);          Serial2.print(",");
+    // Serial2.print(flip_duration_sec);   Serial2.print(",");
+    // Serial2.print(",SFR:");             Serial2.print(setpoint_flip_roll);
+    // Serial2.print(",Rabs:");            Serial2.print(roll_absolute);
+    // Serial2.print(",R:");               Serial2.print(roll);
+    // Serial2.print(",SFG:");             Serial2.print(setpoint_flip_roll_rate);
+    // Serial2.print(",gx:");              Serial2.print(-gxrs);
+    // Serial2.print(",ERR:");             Serial2.print(error_roll);
+    // Serial2.print(",ERG:");             Serial2.print(error_roll_rate);
+    // Serial2.print(",u2:");              Serial2.print(u2, 5);
+    // Serial.print(" ");                  Serial2.print(ch_throttle);
 
     // Angle Gains
-    // Serial2.print(millis());            Serial2.print(" ");
-    // Serial2.print(anglegain.roll);      Serial2.print(" ");
-    // Serial2.print(anglegain.p);         Serial2.print(" ");
-    // Serial2.print(anglegain.pitch);     Serial2.print(" ");
-    // Serial2.print(anglegain.q);         Serial2.print(" ");
-    // Serial2.print(anglegain.yaw);       Serial2.print(" ");
-    // Serial2.print(anglegain.r);         Serial2.print(" ");
-    // Serial2.print(anglegain.iy);        Serial2.print(" ");
-    // Serial2.print("R:");                Serial2.print(roll);
-    // Serial2.print("gx:");               Serial2.print(gxrs);
+    Serial2.print(millis());            Serial2.print(" ");
+    Serial2.print(arming);              Serial2.print(",");
+    Serial2.print(flip_switch_on);      Serial2.print(",");
+    Serial2.print(fp);                  Serial2.print(" ");
+    Serial2.print(hovergain.roll);      Serial2.print(" ");
+    Serial2.print(hovergain.p);         Serial2.print(" ");
+    Serial2.print(hovergain.pitch);     Serial2.print(" ");
+    Serial2.print(hovergain.q);         Serial2.print(" ");
+    Serial2.print(hovergain.yaw, 4);       Serial2.print(" ");
+    Serial2.print(hovergain.r, 4);         Serial2.print(" ");
+    Serial2.print(hovergain.iy, 4);        Serial2.print(" ");
+    Serial2.print(flipgain.roll);       Serial2.print(" ");
+    Serial2.print(flipgain.p);          Serial2.print(" ");
+    Serial2.print(flip_duration_sec);   Serial2.print(" ");
+    Serial2.print("R:");                Serial2.print(roll);
+    Serial2.print(" gx:");               Serial2.print(-gxrs);
+    Serial2.print(" P:");                Serial2.print(pitch);
+    Serial2.print(" gy:");               Serial2.print(gyrs);
+    Serial2.print(" Y:");                Serial2.print(yaw);
+    Serial2.print(" gz:");               Serial2.print(gzrs);
+    Serial2.print(" ");                  Serial2.print(ch_throttle);
 
     Serial2.println(">");
 }
