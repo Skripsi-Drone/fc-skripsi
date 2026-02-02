@@ -68,17 +68,17 @@ struct HoverGains {
     float alt   = 0.0f;
     float vz    = 0.0f;
     float roll  = 2.84; //2.65
-    float p     = 2.37; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    float p     = 2.41; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
     float pitch = 2.87; //2.45
     float q     = 2.20; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
-    float yaw   = 0.1440; // 0.140
-    float r     = 0.0428; // 0.040 0429
-    float iy    = 0.0004; //trial
+    float yaw   = 0.1443; // 0.140
+    float r     = 0.0430; // 0.040 0429
+    float iy    = 0.0006; //trial
 } hovergain; 
 
 struct FlipGains {
     float roll  = 5.0; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
-    float p     = 3.3; //1.94 3.5
+    float p     = 3.5; //1.94 3.5
 } flipgain;
 
 float constrain_value(float value, float min, float max) {
@@ -106,7 +106,7 @@ void update_flip_trajectory() {
 
     float t_now_sec = (micros() - flip_start_time) / 1'000'000.0f;
     if (t_now_sec >= flip_duration_sec) {
-        setpoint_flip_roll = 350.0f;
+        setpoint_flip_roll = 360.0f;
         setpoint_flip_roll_rate = 0.0f;
         ctrl_mode = MODE_RECOVERY;
         fp = IDLE;
@@ -115,14 +115,14 @@ void update_flip_trajectory() {
 
     if (flip_trajectory_type == FLIP_TRAJECTORY_LINEAR) {
         float movement = t_now_sec / flip_duration_sec;
-        setpoint_flip_roll = movement * 350.0f; //sudut = (waktu / durasi) * 360
-        setpoint_flip_roll_rate = 350.0f / flip_duration_sec;   //kecepatan = jarak / waktu
+        setpoint_flip_roll = movement * 360.0f; //sudut = (waktu / durasi) * 360
+        setpoint_flip_roll_rate = 360.0f / flip_duration_sec;   //kecepatan = jarak / waktu
     }
     else if (flip_trajectory_type == FLIP_TRAJECTORY_COSINE) {
         float t_norm = t_now_sec / flip_duration_sec;
         float s_curve = 0.5f * (1.0f - cos(t_norm * PI));   //0.5*(1-cos(pi * t))
-        setpoint_flip_roll = s_curve * 350.0f;
-        float max_vel = (350.0f * PI) / (2.0f * flip_duration_sec);
+        setpoint_flip_roll = s_curve * 360.0f;
+        float max_vel = (360.0f * PI) / (2.0f * flip_duration_sec);
         setpoint_flip_roll_rate = max_vel * sin(t_norm * PI); //(360*pi) / (2*durasi)
     }
 
@@ -132,7 +132,7 @@ void update_flip_trajectory() {
     else if (setpoint_flip_roll < 270.0f) {
         fp = SWING;
     }
-    else if (setpoint_flip_roll < 350.0f) {
+    else if (setpoint_flip_roll < 360.0f) {
         fp = RECOVER;
     }
     else {
@@ -158,8 +158,8 @@ void roll_control() {
         setpoint_roll_rate_last = setpoint_roll_rate_now;
         setpoint_roll_rate_now  = setpoint_flip_roll_rate;
 
-        error_roll      = roll_relative - setpoint_flip_roll;
-        error_roll_rate = (-gxrs) - setpoint_flip_roll_rate;
+        error_roll      = roll_relative - setpoint_roll_now;
+        error_roll_rate = (-gxrs) - setpoint_roll_rate_now;
 
         p_roll = -flipgain.roll * error_roll;
         d_roll = -flipgain.p    * error_roll_rate;

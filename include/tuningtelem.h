@@ -132,7 +132,7 @@ void telemetry_gain_tuning() {
     // Serial.print(" ");                  Serial2.print(ch_throttle);
 
     // Angle Gains
-    Serial2.print(millis());            Serial2.print(" ");
+    Serial2.print(micros());            Serial2.print(" ");
     Serial2.print(arming);              Serial2.print(",");
     Serial2.print(flip_switch_on);      Serial2.print(",");
     Serial2.print(fp);                  Serial2.print(" ");

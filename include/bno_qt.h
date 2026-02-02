@@ -18,6 +18,7 @@ bool initial_tare_done = false;
 
 void bno_init() {
     Serial.begin(115200);
+    // Wire.setClock(400000); // Try to set I2C ke 400kHz (Fast Mode)
     
     // PERBAIKAN 1: Hapus while(!Serial) atau beri timeout
     // Tunggu Serial max 2 detik, kalau tidak ada (pake baterai) lanjut jalan.
