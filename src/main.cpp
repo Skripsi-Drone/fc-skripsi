@@ -102,7 +102,7 @@ void manuver_flip_roll() {
         enter_flip();
         flip_event = false;   // WAJIB reset event
     }
-    if (ctrl_mode == MODE_FLIP_LQR || ctrl_mode == MODE_FLIP_FUZZY_LPV) {
+    if (ctrl_mode == MODE_FLIP_LQR || ctrl_mode == MODE_FLIP_FUZZY_LPV || ctrl_mode == MODE_RECOVERY) {
         if (!flip_switch_on) {
             ctrl_mode = MODE_HOVER;
             fp = IDLE;
@@ -132,6 +132,7 @@ void setup() {
     TELEMETRY.begin(57600);
     USB.begin(115200);
     drone_setup();
+    setup_fuzzy_roll();
 
     if (M_CALIB) {
         motor_calibration();

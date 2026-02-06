@@ -84,7 +84,7 @@ bool setup_sd() {
     // Find next available filename
     int fileIndex = 1;
     while (fileIndex < 1000) { 
-        sprintf(filename, "flip_%03d.csv", fileIndex);
+        sprintf(filename, "flip2_%03d.csv", fileIndex);
         
         if (!SD.exists(filename)) {
             break;  
@@ -153,8 +153,8 @@ void log_to_buffer() {
     entry->error_roll = error_roll;
     entry->error_roll_rate = error_roll_rate;
 
-    entry->kr_eff = K_roll_effective;
-    entry->kp_eff = K_p_effective;
+    entry->kr_eff = adaptive_roll_gain;
+    entry->kp_eff = adaptive_p_gain;
     
     entry->motor1_pwm = motor1_pwm;
     entry->motor2_pwm = motor2_pwm;

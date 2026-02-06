@@ -11,7 +11,7 @@
 #define MAX_ROLL_HOVER  35.0f
 #define MAX_PITCH_HOVER 35.0f
 #define MAX_YAW_HOVER   35.0f
-#define MAX_YAW_RATE    200.0f //deg/s
+// #define MAX_YAW_RATE    200.0f //deg/s
 #define MIN_PWM         1000
 #define MAX_PWM         1800
 #define MAX_PWM_FLIP    2000
@@ -44,6 +44,7 @@ uint32_t flip_start_time = 0;
 float flip_start_angle = 0.0f;
 float flip_duration_sec = 0.85f; //0.75 0.5 1.0 0.8
 float K_roll_effective, K_p_effective;
+float accumulated_roll, last_roll_raw;
 
 enum ControlMode {
     MODE_HOVER = 0,
@@ -104,6 +105,7 @@ void enter_flip() {
     setpoint_flip_roll_rate = 0.0f;
     // roll_absolute = 0.0f;
     yaw_integrator = 0.0f;
+    // yaw_at_flip_end = yaw;
 }
 
 void update_flip_trajectory() {
@@ -113,11 +115,12 @@ void update_flip_trajectory() {
     if (t_now_sec >= flip_duration_sec) {
         setpoint_flip_roll = 360.0f;
         setpoint_flip_roll_rate = 0.0f;
-        ctrl_mode = MODE_RECOVERY;
+        ctrl_mode = MODE_RECOVERY; //ini masuk recovery nya
         fp = IDLE;
 
         // tambahan baru biar gak yawing2 pas recovery krn disorient
         yaw_at_flip_end = yaw;
+        setpoint_yaw = yaw; //tambahan
         yaw_integrator = 0.0f;
 
         return;
@@ -180,31 +183,44 @@ void roll_control() {
     else  if (ctrl_mode == MODE_FLIP_FUZZY_LPV) {
         if (!was_flip) {
         was_flip = true;
-    }
+        last_roll_raw = roll;
+        accumulated_roll = 0.0;
+        }
 
-    roll_absolute += ((-gxrs) * dt_sec);
-    roll_relative = roll_absolute - flip_start_angle;
+        float roll_delta = roll - last_roll_raw;
 
-    setpoint_roll_last      = setpoint_roll_now;
-    setpoint_roll_now       = setpoint_flip_roll;
-    setpoint_roll_rate_last = setpoint_roll_rate_now;
-    setpoint_roll_rate_now  = setpoint_flip_roll_rate;
+        if (roll_delta > 180.0) {
+            roll_delta -= 360.0;
+        } else if (roll_delta < -180.0) {
+            roll_delta += 360.0;
+        }
+        
+        accumulated_roll += roll_delta;
+        last_roll_raw = roll;
+        roll_relative = accumulated_roll;
+        // roll_absolute += ((-gxrs) * dt_sec);
+        // roll_relative = roll_absolute - flip_start_angle;
 
-    error_roll      = roll_relative - setpoint_roll_now;
-    error_roll_rate = (-gxrs) - setpoint_roll_rate_now;
+        setpoint_roll_last      = setpoint_roll_now;
+        setpoint_roll_now       = setpoint_flip_roll;
+        setpoint_roll_rate_last = setpoint_roll_rate_now;
+        setpoint_roll_rate_now  = setpoint_flip_roll_rate;
 
-    // lookup table
-    // fuzzy_lpv_controller(error_roll, error_roll_rate, fp, K_roll_effective, K_p_effective);
-    // p_roll = -K_roll_effective * error_roll;
-    // d_roll = -K_p_effective * error_roll_rate;
+        error_roll      = roll_relative - setpoint_roll_now;
+        error_roll_rate = (-gxrs) - setpoint_roll_rate_now;
 
-    // fuzzy real
-    update_fuzzy_gain();
-    p_roll = adaptive_roll_gain * error_roll;
-    d_roll = adaptive_p_gain * error_roll_rate;
+        // lookup table
+        // fuzzy_lpv_controller(error_roll, error_roll_rate, fp, K_roll_effective, K_p_effective);
+        // p_roll = -K_roll_effective * error_roll;
+        // d_roll = -K_p_effective * error_roll_rate;
 
-    u2 = (p_roll + d_roll) / 10'000'000.0f;
-    u2 = constrain(u2, -MAX_PWM_FLIP, MAX_PWM_FLIP);    
+        // fuzzy real
+        update_fuzzy_gain();
+        p_roll = -adaptive_roll_gain * error_roll;
+        d_roll = -adaptive_p_gain * error_roll_rate;
+
+        u2 = (p_roll + d_roll) / 10'000'000.0f;
+        u2 = constrain(u2, -MAX_PWM_FLIP, MAX_PWM_FLIP);    
     }
     else {
         if (was_flip) {
@@ -228,15 +244,15 @@ void pitch_yaw_control() {
     setpoint_pitch_last = setpoint_pitch_now;
     setpoint_pitch_now = setpoint_pitch;
     setpoint_yaw_last = setpoint_yaw_now;
+    setpoint_yaw_now = setpoint_yaw;
 
-    // hold setpoint recovery yaw sesuai nilai setelah flip fase 3 selesai
-    if (ctrl_mode == MODE_RECOVERY) {
-        setpoint_yaw_now = yaw_at_flip_end;
-    }
-    else {
-        setpoint_yaw_now = setpoint_yaw;
-    }
-    // setpoint_yaw_now = setpoint_yaw;
+    // hold/lock setpoint recovery yaw sesuai nilai setelah flip fase 3 selesai
+    // if (ctrl_mode == MODE_FLIP_LQR || ctrl_mode == MODE_FLIP_FUZZY_LPV) {
+    //     setpoint_yaw_now = yaw_at_flip_end;
+    // }
+    // else {
+    //     setpoint_yaw_now = setpoint_yaw;
+    // }
 
     error_pitch = pitch - setpoint_pitch;
     error_pitch_rate = gyrs;
@@ -283,13 +299,14 @@ void motor_mixer() {
 void set_control_reference() {
     setpoint_roll = roll_scaler() * MAX_ROLL_HOVER;
     setpoint_pitch = -pitch_scaler() * MAX_PITCH_HOVER;
-    // setpoint_yaw = yaw_scaler() * MAX_YAW_HOVER; //v1, default
-    float yaw_input = yaw_scaler();
-    if (abs(yaw_input) > 0.05) {
-        setpoint_yaw += yaw_input * MAX_YAW_RATE * dt;
-    }
-    if (setpoint_yaw > 180) setpoint_yaw -= 360;
-    if (setpoint_yaw < -180) setpoint_yaw += 360;
+    setpoint_yaw = yaw_scaler() * MAX_YAW_HOVER; //v1, default
+    // yaw rate based (RC)
+    // float yaw_input = yaw_scaler();
+    // if (abs(yaw_input) > 0.05) {
+    //     setpoint_yaw += yaw_input * MAX_YAW_RATE * dt;
+    // }
+    // if (setpoint_yaw > 180) setpoint_yaw -= 360;
+    // if (setpoint_yaw < -180) setpoint_yaw += 360;
 }
 
 void drone_controller(){
