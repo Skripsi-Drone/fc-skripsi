@@ -105,27 +105,34 @@ void setup_fuzzy_roll() {
 
     // V4
     // STRATEGI: Pisahkan jelas antara BUILD - SUSTAIN - BRAKE
-    FuzzySet *PL = new FuzzySet(1.5, 2.0, 2.5, 3.0);   // Coast (jangan lawan)
-    FuzzySet *PM = new FuzzySet(3.2, 3.8, 4.5, 5.0);   // Sustain
-    FuzzySet *PH = new FuzzySet(5.2, 6.0, 7.0, 8.0);   // Build + Brake (TINGGI!)
+    // FuzzySet *PL = new FuzzySet(1.5, 2.0, 2.5, 3.0);   // Coast (jangan lawan)
+    // FuzzySet *PM = new FuzzySet(3.2, 3.8, 4.5, 5.0);   // Sustain
+    // FuzzySet *PH = new FuzzySet(5.2, 6.0, 7.0, 8.0);   // Build + Brake (TINGGI!)
+
+    // V5
+    // TODO 1: besok 07/02/2026: habis coba settingan terakhir pakai roll abs sama roll rlv biasanya, coba fuzzyset ini 
+    // FuzzySet *PL = new FuzzySet(1.2, 1.8, 2.4, 3.2);   // Coast (naikin dikit)
+    // FuzzySet *PM = new FuzzySet(3.5, 4.2, 5.0, 5.8);   // Sustain (turunin sedikit)
+    // FuzzySet *PH = new FuzzySet(6.0, 6.8, 7.5, 8.0);   // Aggressive
+    // TODO 3: kalo msh jelek, ganti jadi: FuzzySet *PH = new FuzzySet(5.5, 6.2, 7.0, 7.5);
+
+    // TODO 1: ini gain yg lbh bener dr aturan mamdani
+    FuzzySet *PL = new FuzzySet(1.2, 1.8, 2.4, 3.2);
+    FuzzySet *PM = new FuzzySet(3.5, 4.2, 5.0, 5.8);
+    FuzzySet *PH = new FuzzySet(6.0, 6.8, 7.5, 8.0);
 
     GainP->addFuzzySet(PL);
     GainP->addFuzzySet(PM);
     GainP->addFuzzySet(PH);
 
     fuzzyfliproll->addFuzzyOutput(GainP);
-
-    // =================================================
-    // RULE BASE — BUILD / COAST / BRAKE
-    // =================================================
-
     // -------- BUILD MOMENTUM (AWAL FLIP) --------
     // Roll masih positif, rate kecil → D BESAR
     {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollP, RateZ);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PM); //PH PL
+        c->addOutput(PH); //PM LOCK
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(1, a, c));
     }
 
@@ -133,7 +140,7 @@ void setup_fuzzy_roll() {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollP, RateNS);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PM); //PH PM PH
+        c->addOutput(PH); //PH PM PH
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(2, a, c));
     }
 
@@ -160,7 +167,7 @@ void setup_fuzzy_roll() {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollN, RatePS);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PL); //PL
+        c->addOutput(PM); //TODO 2: PH, TODO 3: PM LOCK
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(5, a, c));
     }
 
@@ -168,7 +175,7 @@ void setup_fuzzy_roll() {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollN, RateZ);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PL); //PL PM nambah jelek //PL dulu, ganti PM 
+        c->addOutput(PL); //TODO 2: PM
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(6, a, c));
     }
 
@@ -176,7 +183,7 @@ void setup_fuzzy_roll() {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollN, RateNS);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PM); //PL PM //PH dulu
+        c->addOutput(PL); //TODO 2: PL, kalo malah overshoot parah, balikin ke PM (TODO 3) LOCK 
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(7, a, c));
     }
 
@@ -197,16 +204,16 @@ void setup_fuzzy_roll() {
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(9, a, c));
     }
 
-    // BARU
+    // BARU (kamis)
      {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollN, RatePB);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PM); //PH kekny bikin jelek, pm masih jelek
+        c->addOutput(PM); //TODO 2: PH sebenernya, tp PH bikin jelek/peak di akhir, worst case aja ini, gausa diganti sek LOCK
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(10, a, c));
     }
 
-    // BARU lg 
+    // BARU lg (kamis tp lbh akhir)
     {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollZ, RateNS);
@@ -220,7 +227,7 @@ void setup_fuzzy_roll() {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollN, RateNB);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PM); //cb dl, antara ini atau low PH, PL jelek, PM gtw y tp jelek
+        c->addOutput(PM); //TODO 2: PL, kalo malah osilasi parah balikin ke PM (TODO 3) LOCK
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(12, a, c));
     }
 
@@ -228,7 +235,7 @@ void setup_fuzzy_roll() {
         FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
         a->joinWithAND(RollZ, RateNB);
         FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-        c->addOutput(PH); //cb dulu, antara ini atau low  PH PM 
+        c->addOutput(PH); //TODO 4: PM (buat kurangi undershoot negatif)
         fuzzyfliproll->addFuzzyRule(new FuzzyRule(13, a, c));
     }
 

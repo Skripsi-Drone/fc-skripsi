@@ -183,23 +183,23 @@ void roll_control() {
     else  if (ctrl_mode == MODE_FLIP_FUZZY_LPV) {
         if (!was_flip) {
         was_flip = true;
-        last_roll_raw = roll;
-        accumulated_roll = 0.0;
+        // last_roll_raw = roll;
+        // accumulated_roll = 0.0;
         }
 
-        float roll_delta = roll - last_roll_raw;
+        // float roll_delta = roll - last_roll_raw;
 
-        if (roll_delta > 180.0) {
-            roll_delta -= 360.0;
-        } else if (roll_delta < -180.0) {
-            roll_delta += 360.0;
-        }
+        // if (roll_delta > 180.0) {
+        //     roll_delta -= 360.0;
+        // } else if (roll_delta < -180.0) {
+        //     roll_delta += 360.0;
+        // }
         
-        accumulated_roll += roll_delta;
-        last_roll_raw = roll;
-        roll_relative = accumulated_roll;
-        // roll_absolute += ((-gxrs) * dt_sec);
-        // roll_relative = roll_absolute - flip_start_angle;
+        // accumulated_roll += roll_delta;
+        // last_roll_raw = roll;
+        // roll_relative = accumulated_roll;
+        roll_absolute += ((-gxrs) * dt_sec);
+        roll_relative = roll_absolute - flip_start_angle;
 
         setpoint_roll_last      = setpoint_roll_now;
         setpoint_roll_now       = setpoint_flip_roll;
