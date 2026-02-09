@@ -6,7 +6,7 @@
 #include "bno_qt.h"
 #include "actu_setup.h"
 #include "radio.h"
-#include "fuzzy_control_flip_3.h"
+#include "fufufuzizizi.h"
 
 #define MAX_ROLL_HOVER  35.0f
 #define MAX_PITCH_HOVER 35.0f
@@ -216,8 +216,8 @@ void roll_control() {
 
         // fuzzy real
         update_fuzzy_gain();
-        p_roll = -adaptive_roll_gain * error_roll;
-        d_roll = -adaptive_p_gain * error_roll_rate;
+        p_roll = -outputgain_roll * error_roll;
+        d_roll = -outputgain_p * error_roll_rate;
 
         u2 = (p_roll + d_roll) / 10'000'000.0f;
         u2 = constrain(u2, -MAX_PWM_FLIP, MAX_PWM_FLIP);    

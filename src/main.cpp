@@ -132,7 +132,7 @@ void setup() {
     TELEMETRY.begin(57600);
     USB.begin(115200);
     drone_setup();
-    setup_fuzzy_roll();
+    fuzzy_roll();
 
     if (M_CALIB) {
         motor_calibration();

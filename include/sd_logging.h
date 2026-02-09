@@ -3,7 +3,7 @@
 
 #include "bno_qt.h"
 #include "control_flip_3.h"
-#include "fuzzy_control_flip_3.h"
+#include "fufufuzizizi.h"
 #include "radio.h"
 #include <SD.h>
 
@@ -153,8 +153,8 @@ void log_to_buffer() {
     entry->error_roll = error_roll;
     entry->error_roll_rate = error_roll_rate;
 
-    entry->kr_eff = adaptive_roll_gain;
-    entry->kp_eff = adaptive_p_gain;
+    entry->kr_eff = outputgain_roll;
+    entry->kp_eff = outputgain_p;
     
     entry->motor1_pwm = motor1_pwm;
     entry->motor2_pwm = motor2_pwm;
