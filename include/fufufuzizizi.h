@@ -12,8 +12,8 @@ extern float gxrs;
 
 Fuzzy *flipcuy = new Fuzzy();
 
-float outputgain_roll = 4.7; // 5
-float outputgain_p = 3.0; // 3.3
+float outputgain_roll = 5.0;
+float outputgain_p = 3.3;
 
 void update_fuzzy_gain() {
     flipcuy -> setInput(1, roll_relative);
@@ -36,32 +36,25 @@ void fuzzy_roll() {
     FuzzyInput *roll_rate = new FuzzyInput(2);
     FuzzySet *GL = new FuzzySet(0, 0, 200, 400);
     FuzzySet *GM = new FuzzySet(300, 500, 500, 700);
-    FuzzySet *GH = new FuzzySet(600, 800, 900, 900); //1000, 1000
+    FuzzySet *GH = new FuzzySet(600, 800, 1000, 1000);
     roll_rate -> addFuzzySet(GL);
     roll_rate -> addFuzzySet(GM);
     roll_rate -> addFuzzySet(GH);
     flipcuy -> addFuzzyInput(roll_rate);
 
     FuzzyOutput *gainRoll = new FuzzyOutput(1);
-    // FuzzySet *Slow = new FuzzySet(2.8, 3.5, 3.5, 4.5);
-    FuzzySet *Slow = new FuzzySet(2.8, 3.2, 3.2, 4.2);
-    // FuzzySet *RNorm = new FuzzySet(4, 5, 5, 6);
-    FuzzySet *RNorm = new FuzzySet(4, 4.5, 4.9, 5.6);
-    // FuzzySet *Aggresive = new FuzzySet(5.5, 7, 7, 8.5);
-    FuzzySet *Aggresive = new FuzzySet(5.0, 6.0, 6.0, 7.0);
+    FuzzySet *Slow = new FuzzySet(2.8, 3.5, 3.5, 4.5);
+    FuzzySet *RNorm = new FuzzySet(4, 5, 5, 6);
+    FuzzySet *Aggresive = new FuzzySet(5.5, 7, 7, 8.5);
     gainRoll -> addFuzzySet(Slow);
     gainRoll -> addFuzzySet(RNorm);
     gainRoll -> addFuzzySet(Aggresive);
     flipcuy -> addFuzzyOutput(gainRoll);
 
     FuzzyOutput *gainP = new FuzzyOutput(2);
-    // FuzzySet *Damped = new FuzzySet(2.2, 2.8, 2.8, 3.2);
-    FuzzySet *Damped = new FuzzySet(2.0, 2.4, 2.4, 3.2);
-    // FuzzySet *PNorm = new FuzzySet(3, 3.5, 3.5, 4);
+    FuzzySet *Damped = new FuzzySet(2.2, 2.8, 2.8, 3.2);
     FuzzySet *PNorm = new FuzzySet(3, 3.5, 3.5, 4);
-    // FuzzySet *Responsive = new FuzzySet(3.8, 4.5, 4.5, 5.2);
-    // FuzzySet *Responsive = new FuzzySet(3.5, 4.0, 4.0, 4.8); 
-    FuzzySet *Responsive = new FuzzySet(3.0, 3.5, 3.5, 4.0); 
+    FuzzySet *Responsive = new FuzzySet(3.8, 4.5, 4.5, 5.2);
     gainP -> addFuzzySet(Damped);
     gainP -> addFuzzySet(PNorm);
     gainP -> addFuzzySet(Responsive);
@@ -127,7 +120,7 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RB, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(RNorm); //Norm
+    c->addOutput(RNorm);
     c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(8, a, c));
     }
@@ -135,7 +128,7 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RB, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Aggresive); //Aggr
+    c->addOutput(Aggresive);
     c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(9, a, c));
     }
