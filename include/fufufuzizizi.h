@@ -27,7 +27,7 @@ void fuzzy_roll() {
     FuzzyInput *roll_rlv = new FuzzyInput(1);
     FuzzySet *RS = new FuzzySet(-180, -180, 0, 90);
     FuzzySet *RM = new FuzzySet(60, 120, 240, 300);
-    FuzzySet *RB = new FuzzySet(270, 360, 360, 360);
+    FuzzySet *RB = new FuzzySet(270, 330, 360, 360);
     roll_rlv -> addFuzzySet(RS);
     roll_rlv -> addFuzzySet(RM);
     roll_rlv -> addFuzzySet(RB);
@@ -43,18 +43,18 @@ void fuzzy_roll() {
     flipcuy -> addFuzzyInput(roll_rate);
 
     FuzzyOutput *gainRoll = new FuzzyOutput(1);
-    FuzzySet *Slow = new FuzzySet(2.8, 3.5, 3.5, 4.5);
-    FuzzySet *RNorm = new FuzzySet(4, 5, 5, 6);
-    FuzzySet *Aggresive = new FuzzySet(5.5, 7, 7, 8.5);
+    FuzzySet *Slow = new FuzzySet(1.8, 2.2, 2.2, 2.8);       // was 2.8-4.5
+    FuzzySet *RNorm = new FuzzySet(2.5, 3.2, 3.2, 4.0);      // was 4-6
+    FuzzySet *Aggresive = new FuzzySet(3.5, 4.5, 4.5, 5.5);  // was 5.5-8.5
     gainRoll -> addFuzzySet(Slow);
     gainRoll -> addFuzzySet(RNorm);
     gainRoll -> addFuzzySet(Aggresive);
     flipcuy -> addFuzzyOutput(gainRoll);
 
     FuzzyOutput *gainP = new FuzzyOutput(2);
-    FuzzySet *Damped = new FuzzySet(2.2, 2.8, 2.8, 3.2);
-    FuzzySet *PNorm = new FuzzySet(3, 3.5, 3.5, 4);
-    FuzzySet *Responsive = new FuzzySet(3.8, 4.5, 4.5, 5.2);
+    FuzzySet *Damped = new FuzzySet(1.5, 2.0, 2.0, 2.5);     // was 2.2-3.2, lebih damped!
+    FuzzySet *PNorm = new FuzzySet(2.3, 2.8, 2.8, 3.3);      // was 3-4
+    FuzzySet *Responsive = new FuzzySet(3.0, 3.8, 3.8, 4.5);
     gainP -> addFuzzySet(Damped);
     gainP -> addFuzzySet(PNorm);
     gainP -> addFuzzySet(Responsive);
@@ -104,8 +104,8 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RM, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Aggresive);
-    c->addOutput(PNorm);
+    c->addOutput(Slow);
+    c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(6, a, c));
     }
     {
@@ -121,15 +121,15 @@ void fuzzy_roll() {
     a->joinWithAND(RB, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm);
-    c->addOutput(Damped);
+    c->addOutput(PNorm);
     flipcuy->addFuzzyRule(new FuzzyRule(8, a, c));
     }
     {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RB, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Aggresive);
-    c->addOutput(Damped);
+    c->addOutput(Slow);
+    c->addOutput(PNorm);
     flipcuy->addFuzzyRule(new FuzzyRule(9, a, c));
     }
 }

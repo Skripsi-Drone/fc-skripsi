@@ -73,7 +73,7 @@ struct HoverGains {
     float alt   = 0.0f;
     float vz    = 0.0f;
     float roll  = 2.84; //2.65
-    float p     = 2.41; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
+    float p     = 2.44; //1.20 1.53 1.72 | 0.8 kurang msh osilasi jd gedein sampe 1 lebih. kl kurang naikin dikit aja
     float pitch = 2.87; //2.45
     float q     = 2.20; //0.98 1.28 | pake lpf gyro rangenya 0.98 sampe 1.0, tanpa lpf 1.0 sampe 1.1 atau tambah dikit lg
     float yaw   = 0.1443; // 0.140
