@@ -6,7 +6,7 @@
 #include "bno_qt.h"
 #include "actu_setup.h"
 #include "radio.h"
-#include "fufufuzizizi.h"
+#include "fuzzylpv.h"
 
 #define MAX_ROLL_HOVER  35.0f
 #define MAX_PITCH_HOVER 35.0f
@@ -100,6 +100,7 @@ void enter_flip() {
     // ctrl_mode = MODE_FLIP_LQR;
     ctrl_mode = MODE_FLIP_FUZZY_LPV;
     flip_start_time = micros();
+    flip_start_angle = roll_absolute;
 
     setpoint_flip_roll = 0.0f;
     setpoint_flip_roll_rate = 0.0f;
@@ -200,6 +201,7 @@ void roll_control() {
         // roll_relative = accumulated_roll;
         roll_absolute += ((-gxrs) * dt_sec);
         roll_relative = roll_absolute - flip_start_angle;
+        roll_relative = fmod(roll_relative + 360.0, 360.0);
 
         setpoint_roll_last      = setpoint_roll_now;
         setpoint_roll_now       = setpoint_flip_roll;
@@ -215,9 +217,15 @@ void roll_control() {
         // d_roll = -K_p_effective * error_roll_rate;
 
         // fuzzy real
-        update_fuzzy_gain();
-        p_roll = -outputgain_roll * error_roll;
-        d_roll = -outputgain_p * error_roll_rate;
+        // update_fuzzy_gain();
+
+        // fuzzy lpv
+        float rho_roll = roll_relative;
+        float rho_rate = (fabs(-gxrs));
+        fuzzy_lpv_gain_sched(rho_roll, rho_rate);
+
+        p_roll = -K_roll_effective * error_roll;
+        d_roll = -K_p_effective * error_roll_rate;
 
         u2 = (p_roll + d_roll) / 10'000'000.0f;
         u2 = constrain(u2, -MAX_PWM_FLIP, MAX_PWM_FLIP);    
