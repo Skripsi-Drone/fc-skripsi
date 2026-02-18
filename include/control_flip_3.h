@@ -184,6 +184,8 @@ void roll_control() {
     else  if (ctrl_mode == MODE_FLIP_FUZZY_LPV) {
         if (!was_flip) {
         was_flip = true;
+        roll_absolute = 0.0;
+        flip_start_angle = 0.0;
         // last_roll_raw = roll;
         // accumulated_roll = 0.0;
         }
@@ -203,6 +205,14 @@ void roll_control() {
         roll_relative = roll_absolute - flip_start_angle;
         roll_relative = fmod(roll_relative + 360.0, 360.0);
 
+        // fuzzy lpv
+        float rho_roll = roll_relative;
+        if (rho_roll > 180.0) {
+            rho_roll = 360.0 - rho_roll; 
+        }
+        float rho_rate = (fabs(-gxrs));
+        fuzzy_lpv_gain_sched(rho_roll, rho_rate);
+
         setpoint_roll_last      = setpoint_roll_now;
         setpoint_roll_now       = setpoint_flip_roll;
         setpoint_roll_rate_last = setpoint_roll_rate_now;
@@ -218,11 +228,6 @@ void roll_control() {
 
         // fuzzy real
         // update_fuzzy_gain();
-
-        // fuzzy lpv
-        float rho_roll = roll_relative;
-        float rho_rate = (fabs(-gxrs));
-        fuzzy_lpv_gain_sched(rho_roll, rho_rate);
 
         p_roll = -K_roll_effective * error_roll;
         d_roll = -K_p_effective * error_roll_rate;

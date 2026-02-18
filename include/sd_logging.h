@@ -156,9 +156,9 @@ void log_to_buffer() {
     entry->error_roll = error_roll;
     entry->error_roll_rate = error_roll_rate;
 
-    entry->w1 = weight[0],3;
-    entry->w2 = weight[1],3;
-    entry->w3 = weight[2],3;
+    entry->w1 = weight[0];
+    entry->w2 = weight[1];
+    entry->w3 = weight[2];
     entry->kr_eff = K_roll_effective;
     entry->kp_eff = K_p_effective;
     
