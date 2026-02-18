@@ -185,7 +185,7 @@ bool flush_buffer_to_sd() {
         
         // Write CSV row (single print for speed)
         char line[256];
-        sprintf(line, "%lu,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d",
+        sprintf(line, "%lu,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d",
                 entry->timestamp_us,
                 entry->arming,
                 entry->flip_switch,

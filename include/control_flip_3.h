@@ -100,7 +100,7 @@ void enter_flip() {
     // ctrl_mode = MODE_FLIP_LQR;
     ctrl_mode = MODE_FLIP_FUZZY_LPV;
     flip_start_time = micros();
-    flip_start_angle = roll_absolute;
+    // flip_start_angle = roll_absolute;
 
     setpoint_flip_roll = 0.0f;
     setpoint_flip_roll_rate = 0.0f;
@@ -184,8 +184,8 @@ void roll_control() {
     else  if (ctrl_mode == MODE_FLIP_FUZZY_LPV) {
         if (!was_flip) {
         was_flip = true;
-        roll_absolute = 0.0;
-        flip_start_angle = 0.0;
+        // roll_absolute = 0.0;
+        // flip_start_angle = 0.0;
         // last_roll_raw = roll;
         // accumulated_roll = 0.0;
         }
@@ -203,13 +203,14 @@ void roll_control() {
         // roll_relative = accumulated_roll;
         roll_absolute += ((-gxrs) * dt_sec);
         roll_relative = roll_absolute - flip_start_angle;
-        roll_relative = fmod(roll_relative + 360.0, 360.0);
+        // roll_relative = fmod(roll_relative + 360.0, 360.0);
 
         // fuzzy lpv
+        // float rho_roll = fmod(roll_relative + 360.0, 360.0);
+        // if (rho_roll > 180.0) {
+        //     rho_roll = 360.0 - rho_roll; 
+        // }
         float rho_roll = roll_relative;
-        if (rho_roll > 180.0) {
-            rho_roll = 360.0 - rho_roll; 
-        }
         float rho_rate = (fabs(-gxrs));
         fuzzy_lpv_gain_sched(rho_roll, rho_rate);
 
