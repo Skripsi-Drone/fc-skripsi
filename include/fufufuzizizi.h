@@ -75,7 +75,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm);
-    c->addOutput(Damped);
+    c->addOutput(PNorm);
     flipcuy->addFuzzyRule(new FuzzyRule(1, a, c));
     }
     {
@@ -83,7 +83,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Aggresive);
-    c->addOutput(PNorm);
+    c->addOutput(Responsive);
     flipcuy->addFuzzyRule(new FuzzyRule(2, a, c));
     }
     {
@@ -98,8 +98,8 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RM, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Aggresive); //slow
-    c->addOutput(Responsive); //damped
+    c->addOutput(Slow); //slow
+    c->addOutput(Damped); //damped
     flipcuy->addFuzzyRule(new FuzzyRule(4, a, c));
     }
     {
@@ -107,14 +107,14 @@ void fuzzy_roll() {
     a->joinWithAND(RM, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm); 
-    c->addOutput(Responsive); 
+    c->addOutput(PNorm); 
     flipcuy->addFuzzyRule(new FuzzyRule(5, a, c));
     }
     {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RM, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(RNorm);
+    c->addOutput(Slow);
     c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(6, a, c));
     }
@@ -122,8 +122,8 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RB, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(RNorm); 
-    c->addOutput(PNorm); 
+    c->addOutput(Slow); 
+    c->addOutput(Damped); 
     flipcuy->addFuzzyRule(new FuzzyRule(7, a, c));
     }
     {
