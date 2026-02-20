@@ -3,7 +3,7 @@
 
 #include "bno_qt.h"
 #include "control_flip_3.h"
-#include "fuzzylpv.h"
+#include "fufufuzizizi.h"
 #include "radio.h"
 #include <SD.h>
 
@@ -32,9 +32,6 @@ struct LogEntry {
     float error_roll;
     float error_roll_rate;
 
-    float w1;
-    float w2;
-    float w3;
     float kr_eff;
     float kp_eff;
     
@@ -113,7 +110,7 @@ bool setup_sd() {
     Serial.print("Logging to: ");
     Serial.println(filename);
     
-    dataFile.println("micros,arm,flip_sw,phase,spf_roll,roll_rlv,roll_abs,roll,pitch,yaw,spf_rate,gxrs,gyrs,gzrs,e_roll,e_rrate,w1,w2,w3,kr_eff,kp_eff,m1,m2,m3,m4");
+    dataFile.println("micros,arm,flip_sw,phase,spf_roll,roll_rlv,roll_abs,roll,pitch,yaw,spf_rate,gxrs,gyrs,gzrs,e_roll,e_rrate,kr_eff,kp_eff,m1,m2,m3,m4");
     dataFile.flush();
     
     sd_initialized = true;
@@ -156,11 +153,8 @@ void log_to_buffer() {
     entry->error_roll = error_roll;
     entry->error_roll_rate = error_roll_rate;
 
-    entry->w1 = weight[0];
-    entry->w2 = weight[1];
-    entry->w3 = weight[2];
-    entry->kr_eff = K_roll_effective;
-    entry->kp_eff = K_p_effective;
+    entry->kr_eff = get_kroll_eff();
+    entry->kp_eff = get_kp_eff();
     
     entry->motor1_pwm = motor1_pwm;
     entry->motor2_pwm = motor2_pwm;
@@ -185,7 +179,7 @@ bool flush_buffer_to_sd() {
         
         // Write CSV row (single print for speed)
         char line[256];
-        sprintf(line, "%lu,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d",
+        sprintf(line, "%lu,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%.2f,%d,%d,%d,%d",
                 entry->timestamp_us,
                 entry->arming,
                 entry->flip_switch,
@@ -202,9 +196,6 @@ bool flush_buffer_to_sd() {
                 entry->gzrs,
                 entry->error_roll,
                 entry->error_roll_rate,
-                entry->w1,
-                entry->w2,
-                entry->w3,
                 entry->kr_eff,
                 entry->kp_eff,
                 entry->motor1_pwm,
