@@ -12,8 +12,8 @@ extern float gxrs;
 
 Fuzzy *flipcuy = new Fuzzy();
 
-#define KROLL_BASE 3.90f
-#define KP_BASE 3.20f
+#define KROLL_BASE 3.30f
+#define KP_BASE 2.50f
 float delta_kroll = 0.0f;
 float delta_kp    = 0.0f;
 
