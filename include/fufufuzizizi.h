@@ -12,8 +12,8 @@ extern float gxrs;
 
 Fuzzy *flipcuy = new Fuzzy();
 
-#define KROLL_BASE 3.38f
-#define KP_BASE 2.88f
+#define KROLL_BASE 3.48f
+#define KP_BASE 3.00f
 float delta_kroll = 0.0f;
 float delta_kp    = 0.0f;
 
@@ -75,7 +75,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm);
-    c->addOutput(PNorm);
+    c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(1, a, c));
     }
     {
@@ -83,7 +83,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Aggresive);
-    c->addOutput(Responsive);
+    c->addOutput(PNorm);
     flipcuy->addFuzzyRule(new FuzzyRule(2, a, c));
     }
     {
@@ -106,7 +106,7 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RM, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Aggresive); 
+    c->addOutput(RNorm); 
     c->addOutput(Responsive); 
     flipcuy->addFuzzyRule(new FuzzyRule(5, a, c));
     }
@@ -115,7 +115,7 @@ void fuzzy_roll() {
     a->joinWithAND(RM, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm);
-    c->addOutput(PNorm);
+    c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(6, a, c));
     }
     {
@@ -130,7 +130,7 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RB, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Slow); //norm
+    c->addOutput(RNorm); //norm
     c->addOutput(PNorm); //norm
     flipcuy->addFuzzyRule(new FuzzyRule(8, a, c));
     }
