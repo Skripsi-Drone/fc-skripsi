@@ -53,9 +53,9 @@ void fuzzy_roll() {
     flipcuy -> addFuzzyInput(roll_rate);
 
     FuzzyOutput *gainRoll = new FuzzyOutput(1);
-    FuzzySet *Slow  = new FuzzySet(-2.00, -1.50, -1.00, -0.05);
-    FuzzySet *RNorm = new FuzzySet(-0.90, 0.00, 0.00, 0.90);
-    FuzzySet *Aggresive = new FuzzySet( 0.40, 0.90, 1.40, 2.00);
+    FuzzySet *Slow  = new FuzzySet(-3.00, -2.00, -1.00, -0.05);
+    FuzzySet *RNorm = new FuzzySet(-0.70, 0.00, 0.00, 0.90);
+    FuzzySet *Aggresive = new FuzzySet( 0.70, 1.00, 2.00, 3.00);
     gainRoll -> addFuzzySet(Slow);
     gainRoll -> addFuzzySet(RNorm);
     gainRoll -> addFuzzySet(Aggresive);
