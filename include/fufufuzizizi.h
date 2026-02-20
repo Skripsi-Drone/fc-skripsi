@@ -98,7 +98,7 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RM, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Slow); //slow
+    c->addOutput(Aggresive); //slow
     c->addOutput(Damped); //damped
     flipcuy->addFuzzyRule(new FuzzyRule(4, a, c));
     }
