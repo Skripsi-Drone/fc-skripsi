@@ -1,0 +1,230 @@
+#ifndef FUFUZIZI_H
+#define FUFUZIZI_H
+
+#include <Fuzzy.h>
+#include "bno_qt.h"
+#include "actu_setup.h"
+#include "control_flip_3.h"
+#include "radio.h"
+
+extern float roll_relative;
+extern float gxrs;
+
+Fuzzy *flipcuy = new Fuzzy();
+
+// =====================================================================
+// SKEMA KOMPENSATOR GAIN (LQR + Fuzzy Compensator)
+//
+// Gain efektif = gain_base + delta_kompensasi_fuzzy
+//   kr_eff = KR_BASE + delta_kr    (output fuzzy 1)
+//   kp_eff = KP_BASE + delta_kp    (output fuzzy 2)
+//
+// gain_base diturunkan dari nilai tengah distribusi kr_eff dan kp_eff
+// pada data log session terbaik (session 4, ITAE flip = 46.57)
+//
+// Gain LQR statis (main controller) tetap tidak berubah.
+// Fuzzy hanya aktif saat flip_sw == 1, bersifat kompensator.
+// =====================================================================
+
+#define KR_BASE  3.76f   // gain roll base (midpoint distribusi kr_eff)
+#define KP_BASE  2.98f   // gain rate base (midpoint distribusi kp_eff)
+
+float delta_kr = 0.0f;   // output kompensasi fuzzy untuk kr
+float delta_kp = 0.0f;   // output kompensasi fuzzy untuk kp
+
+void update_fuzzy_gain() {
+    flipcuy->setInput(1, roll_relative);
+    flipcuy->setInput(2, fabs(gxrs));
+    flipcuy->fuzzify();
+    delta_kr = flipcuy->defuzzify(1);
+    delta_kp = flipcuy->defuzzify(2);
+}
+
+// Gain efektif yang digunakan oleh kontroler flip
+float get_kr_eff() { return KR_BASE + delta_kr; }
+float get_kp_eff() { return KP_BASE + delta_kp; }
+
+void fuzzy_roll() {
+
+    // =================================================================
+    // INPUT 1: roll_relative (posisi sudut roll saat flip, 0-360 deg)
+    // RS = Roll Kecil  (0° – 90°)   → fase CLIMB / hover
+    // RM = Roll Tengah (60° – 300°) → fase SWING
+    // RB = Roll Besar  (270° – 360°)→ fase RECOVER
+    // =================================================================
+    FuzzyInput *roll_rlv = new FuzzyInput(1);
+    FuzzySet *RS = new FuzzySet(0, 20, 60, 100);
+    FuzzySet *RM = new FuzzySet(60, 120, 240, 300);
+    FuzzySet *RB = new FuzzySet(270, 330, 360, 360);
+    roll_rlv->addFuzzySet(RS);
+    roll_rlv->addFuzzySet(RM);
+    roll_rlv->addFuzzySet(RB);
+    flipcuy->addFuzzyInput(roll_rlv);
+
+    // =================================================================
+    // INPUT 2: |gxrs| (roll rate absolut, deg/s)
+    // GL = Rate Rendah  (0   – 400  deg/s)
+    // GM = Rate Sedang  (300 – 700  deg/s)
+    // GH = Rate Tinggi  (600 – 1000 deg/s)
+    // =================================================================
+    FuzzyInput *roll_rate = new FuzzyInput(2);
+    FuzzySet *GL = new FuzzySet(0, 0, 200, 400);
+    FuzzySet *GM = new FuzzySet(300, 500, 500, 700);
+    FuzzySet *GH = new FuzzySet(600, 800, 1000, 1000);
+    roll_rate->addFuzzySet(GL);
+    roll_rate->addFuzzySet(GM);
+    roll_rate->addFuzzySet(GH);
+    flipcuy->addFuzzyInput(roll_rate);
+
+    // =================================================================
+    // OUTPUT 1: delta_kr (kompensasi gain roll)
+    // Rekonstruksi dari data log: kr_eff range [2.27, 4.50]
+    // kr_base = 3.38 (midpoint), delta range [-1.20, +1.20]
+    //
+    // NEG  = kurangi gain roll  [-1.20, -1.20, -0.80,  0.00]
+    // ZERO = pertahankan gain   [-0.80,  0.00,  0.00,  0.60]
+    // POS  = tambah gain roll   [ 0.00,  0.60,  1.20,  1.20]
+    // =================================================================
+    FuzzyOutput *out_dkr = new FuzzyOutput(1);
+    FuzzySet *dkr_NEG  = new FuzzySet(-1.20, -1.20, -0.80, 0.00);
+    FuzzySet *dkr_ZERO = new FuzzySet(-0.80,  0.00,  0.00, 0.60);
+    FuzzySet *dkr_POS  = new FuzzySet( 0.00,  0.60,  1.20, 1.20);
+    out_dkr->addFuzzySet(dkr_NEG);
+    out_dkr->addFuzzySet(dkr_ZERO);
+    out_dkr->addFuzzySet(dkr_POS);
+    flipcuy->addFuzzyOutput(out_dkr);
+
+    // =================================================================
+    // OUTPUT 2: delta_kp (kompensasi gain rate/p)
+    // Rekonstruksi dari data log: kp_eff range [2.00, 3.76]
+    // kp_base = 2.88 (midpoint), delta range [-1.00, +1.00]
+    //
+    // NEG  = kurangi gain rate  [-1.00, -1.00, -0.70,  0.00]
+    // ZERO = pertahankan gain   [-0.70,  0.00,  0.00,  0.60]
+    // POS  = tambah gain rate   [ 0.00,  0.60,  1.00,  1.00]
+    // =================================================================
+    FuzzyOutput *out_dkp = new FuzzyOutput(2);
+    FuzzySet *dkp_NEG  = new FuzzySet(-1.00, -1.00, -0.70, 0.00);
+    FuzzySet *dkp_ZERO = new FuzzySet(-0.70,  0.00,  0.00, 0.60);
+    FuzzySet *dkp_POS  = new FuzzySet( 0.00,  0.60,  1.00, 1.00);
+    out_dkp->addFuzzySet(dkp_NEG);
+    out_dkp->addFuzzySet(dkp_ZERO);
+    out_dkp->addFuzzySet(dkp_POS);
+    flipcuy->addFuzzyOutput(out_dkp);
+
+    // =================================================================
+    // RULE BASE (9 rules, 3x3: roll_zone x rate_zone)
+    //
+    // Sumber: 6 rules dari data log session 4 (coverage 96-100%)
+    //         3 rules dari logika fisik (zona tidak teramati di data)
+    //
+    // Pola umum:
+    //   CLIMB (RS)  + rate naik  → POS  (naikkan gain untuk akselerasi)
+    //   CLIMB (RS)  + rate rendah→ NEG  (gain masih kegedean saat hover)
+    //   SWING (RM)  + rate tinggi→ NEG  (kurangi agar tidak overshoot)
+    //   SWING (RM)  + rate rendah→ POS  (boost momentum yg hampir habis)
+    //   RECOVER(RB) + semua rate → NEG/ZERO (damping kembali ke stabil)
+    // =================================================================
+
+    // Rule 1: RS & GL → NEG, NEG  [DATA 99.7%]
+    // Awal flip / hover, rate masih rendah → gain base terlalu besar, kurangi
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RS, GL);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_NEG);
+    c->addOutput(dkp_NEG);
+    flipcuy->addFuzzyRule(new FuzzyRule(1, a, c));
+    }
+
+    // Rule 2: RS & GM → POS, POS  [DATA 53.2%]
+    // Roll kecil, rate sedang → akselerasi mulai → naikkan gain
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RS, GM);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_POS);
+    c->addOutput(dkp_POS);
+    flipcuy->addFuzzyRule(new FuzzyRule(2, a, c));
+    }
+
+    // Rule 3: RS & GH → POS, POS  [DATA 100%]
+    // Roll kecil, rate tinggi → akselerasi penuh → naikkan gain
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RS, GH);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_POS);
+    c->addOutput(dkp_POS);
+    flipcuy->addFuzzyRule(new FuzzyRule(3, a, c));
+    }
+
+    // Rule 4: RM & GL → POS, POS  [LOGIKA FISIK]
+    // Roll tengah, rate rendah → momentum hampir habis di tengah flip
+    // → boost gain agar flip tidak gagal di tengah jalan
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RM, GL);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_POS);
+    c->addOutput(dkp_POS);
+    flipcuy->addFuzzyRule(new FuzzyRule(4, a, c));
+    }
+
+    // Rule 5: RM & GM → ZERO, ZERO  [LOGIKA FISIK]
+    // Roll tengah, rate sedang → kondisi normal swing → pertahankan gain
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RM, GM);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_ZERO);
+    c->addOutput(dkp_ZERO);
+    flipcuy->addFuzzyRule(new FuzzyRule(5, a, c));
+    }
+
+    // Rule 6: RM & GH → NEG, NEG  [DATA 96%]
+    // Roll tengah, rate tinggi → swing sangat cepat → kurangi gain
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RM, GH);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_NEG);
+    c->addOutput(dkp_NEG);
+    flipcuy->addFuzzyRule(new FuzzyRule(6, a, c));
+    }
+
+    // Rule 7: RB & GL → ZERO, ZERO  [LOGIKA FISIK]
+    // Roll hampir selesai, rate rendah → recovery lambat → netralkan gain
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RB, GL);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_ZERO);
+    c->addOutput(dkp_ZERO);
+    flipcuy->addFuzzyRule(new FuzzyRule(7, a, c));
+    }
+
+    // Rule 8: RB & GM → NEG, NEG  [DATA 100%]
+    // Roll hampir selesai, rate sedang → recovery aktif → kurangi gain (damping)
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RB, GM);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_NEG);
+    c->addOutput(dkp_NEG);
+    flipcuy->addFuzzyRule(new FuzzyRule(8, a, c));
+    }
+
+    // Rule 9: RB & GH → NEG, NEG  [DATA 100%]
+    // Roll hampir selesai, rate tinggi → recovery agresif → kurangi gain
+    {
+    FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
+    a->joinWithAND(RB, GH);
+    FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
+    c->addOutput(dkr_NEG);
+    c->addOutput(dkp_NEG);
+    flipcuy->addFuzzyRule(new FuzzyRule(9, a, c));
+    }
+}
+
+#endif
