@@ -42,7 +42,7 @@ float roll_relative;
 float yaw_at_flip_end = 0.0f;
 uint32_t flip_start_time = 0;
 float flip_start_angle = 0.0f;
-float flip_duration_sec = 0.85f; //0.75 0.5 1.0 0.8
+float flip_duration_sec = 0.8f; //0.75 0.5 1.0 0.8
 float K_roll_effective, K_p_effective;
 float accumulated_roll, last_roll_raw;
 
