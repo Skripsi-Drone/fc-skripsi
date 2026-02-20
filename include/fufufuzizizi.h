@@ -12,8 +12,8 @@ extern float gxrs;
 
 Fuzzy *flipcuy = new Fuzzy();
 
-#define KROLL_BASE 3.70f
-#define KP_BASE 3.00f
+#define KROLL_BASE 3.90f
+#define KP_BASE 3.20f
 float delta_kroll = 0.0f;
 float delta_kp    = 0.0f;
 
@@ -54,7 +54,7 @@ void fuzzy_roll() {
 
     FuzzyOutput *gainRoll = new FuzzyOutput(1);
     FuzzySet *Slow  = new FuzzySet(-1.45, -1.20, -0.80, 0.00);
-    FuzzySet *RNorm = new FuzzySet(-0.80,  0.00,  0.00, 0.80);
+    FuzzySet *RNorm = new FuzzySet(-0.40,  0.00,  0.00, 0.80);
     FuzzySet *Aggresive = new FuzzySet( 0.00,  0.60,  1.20, 1.45);
     gainRoll -> addFuzzySet(Slow);
     gainRoll -> addFuzzySet(RNorm);
@@ -63,7 +63,7 @@ void fuzzy_roll() {
 
     FuzzyOutput *gainP = new FuzzyOutput(2);
     FuzzySet *Damped = new FuzzySet(-1.40, -1.00, -0.70, 0.00);    
-    FuzzySet *PNorm = new FuzzySet(-0.70,  0.00,  0.00, 0.80);     
+    FuzzySet *PNorm = new FuzzySet(-0.50,  0.00,  0.00, 0.80);     
     FuzzySet *Responsive = new FuzzySet(0.00,  0.60,  1.00, 1.40);
     gainP -> addFuzzySet(Damped);
     gainP -> addFuzzySet(PNorm);
