@@ -12,7 +12,7 @@ extern float gxrs;
 
 Fuzzy *flipcuy = new Fuzzy();
 
-#define KROLL_BASE 3.2f //3.38 3.76
+#define KROLL_BASE 3.4f //3.38 3.76
 #define KP_BASE 2.98f //2.88
 float delta_kroll = 0.0f;
 float delta_kp    = 0.0f;
@@ -84,7 +84,7 @@ void fuzzy_roll() {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RS, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Slow); //RNorm
+    c->addOutput(RNorm); //RNorm
     c->addOutput(Damped);
     flipcuy->addFuzzyRule(new FuzzyRule(1, a, c));
     }
