@@ -82,8 +82,8 @@ struct HoverGains {
 } hovergain; 
 
 struct FlipGains { //samain kek base gain
-    float roll  = 5.0; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
-    float p     = 3.5; //1.94 3.5
+    float roll  = 3.4; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
+    float p     = 2.98; //1.94 3.5
 } flipgain;
 
 float constrain_value(float value, float min, float max) {
@@ -97,8 +97,8 @@ float constrain_value(float value, float min, float max) {
 }
 
 void enter_flip() {
-    // ctrl_mode = MODE_FLIP_LQR;
-    ctrl_mode = MODE_FLIP_FUZZY_LPV;
+    ctrl_mode = MODE_FLIP_LQR;
+    // ctrl_mode = MODE_FLIP_FUZZY_LPV;
     flip_start_time = micros();
     // flip_start_angle = roll_absolute;
 
