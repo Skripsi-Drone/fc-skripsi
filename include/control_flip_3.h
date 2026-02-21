@@ -81,7 +81,7 @@ struct HoverGains {
     float iy    = 0.0006; //trial
 } hovergain; 
 
-struct FlipGains {
+struct FlipGains { //samain kek base gain
     float roll  = 5.0; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
     float p     = 3.5; //1.94 3.5
 } flipgain;
