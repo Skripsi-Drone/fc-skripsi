@@ -42,10 +42,15 @@ float roll_relative;
 float yaw_at_flip_end = 0.0f;
 uint32_t flip_start_time = 0;
 float flip_start_angle = 0.0f;
-float flip_duration_sec = 0.8f; //0.75 0.5 1.0 0.8
+float flip_duration_sec = 0.9f; //0.75 0.5 1.0 0.8
 float K_roll_effective, K_p_effective;
 float accumulated_roll, last_roll_raw;
-
+//pertama 1 detik, kedua 0.9, trs 1.0
+// gain tetap
+//gain 3.4 2.98 0.9 detik
+//gain 5.0 2.98 0.9 detik
+//gain 6.0 2.98 0.9 detik
+//gain 7.0 2.98 0.9 detik
 enum ControlMode {
     MODE_HOVER = 0,
     MODE_FLIP_LQR,
@@ -82,7 +87,7 @@ struct HoverGains {
 } hovergain; 
 
 struct FlipGains { //samain kek base gain
-    float roll  = 3.4; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
+    float roll  = 7.0; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
     float p     = 2.98; //1.94 3.5
 } flipgain;
 
@@ -97,8 +102,8 @@ float constrain_value(float value, float min, float max) {
 }
 
 void enter_flip() {
-    // ctrl_mode = MODE_FLIP_LQR;
-    ctrl_mode = MODE_FLIP_FUZZY_LPV;
+    ctrl_mode = MODE_FLIP_LQR;
+    // ctrl_mode = MODE_FLIP_FUZZY_LPV;
     flip_start_time = micros();
     // flip_start_angle = roll_absolute;
 

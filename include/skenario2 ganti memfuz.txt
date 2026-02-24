@@ -10,7 +10,7 @@
 extern float roll_relative;
 extern float gxrs;
 
-Fuzzy *flipcuy = new Fuzzy();
+Fuzzy *fliproll = new Fuzzy();
 
 // =====================================================================
 // SKEMA KOMPENSATOR GAIN (LQR + Fuzzy Compensator)
@@ -33,11 +33,11 @@ float delta_kr = 0.0f;   // output kompensasi fuzzy untuk kr
 float delta_kp = 0.0f;   // output kompensasi fuzzy untuk kp
 
 void update_fuzzy_gain() {
-    flipcuy->setInput(1, roll_relative);
-    flipcuy->setInput(2, fabs(gxrs));
-    flipcuy->fuzzify();
-    delta_kr = flipcuy->defuzzify(1);
-    delta_kp = flipcuy->defuzzify(2);
+    fliproll->setInput(1, roll_relative);
+    fliproll->setInput(2, fabs(gxrs));
+    fliproll->fuzzify();
+    delta_kr = fliproll->defuzzify(1);
+    delta_kp = fliproll->defuzzify(2);
 }
 
 // Gain efektif yang digunakan oleh kontroler flip
@@ -59,7 +59,7 @@ void fuzzy_roll() {
     roll_rlv->addFuzzySet(RS);
     roll_rlv->addFuzzySet(RM);
     roll_rlv->addFuzzySet(RB);
-    flipcuy->addFuzzyInput(roll_rlv);
+    fliproll->addFuzzyInput(roll_rlv);
 
     // =================================================================
     // INPUT 2: |gxrs| (roll rate absolut, deg/s)
@@ -74,7 +74,7 @@ void fuzzy_roll() {
     roll_rate->addFuzzySet(GL);
     roll_rate->addFuzzySet(GM);
     roll_rate->addFuzzySet(GH);
-    flipcuy->addFuzzyInput(roll_rate);
+    fliproll->addFuzzyInput(roll_rate);
 
     // =================================================================
     // OUTPUT 1: delta_kr (kompensasi gain roll)
@@ -92,7 +92,7 @@ void fuzzy_roll() {
     out_dkr->addFuzzySet(dkr_NEG);
     out_dkr->addFuzzySet(dkr_ZERO);
     out_dkr->addFuzzySet(dkr_POS);
-    flipcuy->addFuzzyOutput(out_dkr);
+    fliproll->addFuzzyOutput(out_dkr);
 
     // =================================================================
     // OUTPUT 2: delta_kp (kompensasi gain rate/p)
@@ -110,7 +110,7 @@ void fuzzy_roll() {
     out_dkp->addFuzzySet(dkp_NEG);
     out_dkp->addFuzzySet(dkp_ZERO);
     out_dkp->addFuzzySet(dkp_POS);
-    flipcuy->addFuzzyOutput(out_dkp);
+    fliproll->addFuzzyOutput(out_dkp);
 
     // =================================================================
     // RULE BASE (9 rules, 3x3: roll_zone x rate_zone)
@@ -134,7 +134,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_NEG);
     c->addOutput(dkp_NEG);
-    flipcuy->addFuzzyRule(new FuzzyRule(1, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(1, a, c));
     }
 
     // Rule 2: RS & GM → POS, POS  [DATA 53.2%]
@@ -145,7 +145,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_POS);
     c->addOutput(dkp_POS);
-    flipcuy->addFuzzyRule(new FuzzyRule(2, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(2, a, c));
     }
 
     // Rule 3: RS & GH → POS, POS  [DATA 100%]
@@ -156,7 +156,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_POS);
     c->addOutput(dkp_POS);
-    flipcuy->addFuzzyRule(new FuzzyRule(3, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(3, a, c));
     }
 
     // Rule 4: RM & GL → POS, POS  [LOGIKA FISIK]
@@ -168,7 +168,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_POS);
     c->addOutput(dkp_POS);
-    flipcuy->addFuzzyRule(new FuzzyRule(4, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(4, a, c));
     }
 
     // Rule 5: RM & GM → ZERO, ZERO  [LOGIKA FISIK]
@@ -179,7 +179,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_ZERO);
     c->addOutput(dkp_ZERO);
-    flipcuy->addFuzzyRule(new FuzzyRule(5, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(5, a, c));
     }
 
     // Rule 6: RM & GH → NEG, NEG  [DATA 96%]
@@ -190,7 +190,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_NEG);
     c->addOutput(dkp_NEG);
-    flipcuy->addFuzzyRule(new FuzzyRule(6, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(6, a, c));
     }
 
     // Rule 7: RB & GL → ZERO, ZERO  [LOGIKA FISIK]
@@ -201,7 +201,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_ZERO);
     c->addOutput(dkp_ZERO);
-    flipcuy->addFuzzyRule(new FuzzyRule(7, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(7, a, c));
     }
 
     // Rule 8: RB & GM → NEG, NEG  [DATA 100%]
@@ -212,7 +212,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_NEG);
     c->addOutput(dkp_NEG);
-    flipcuy->addFuzzyRule(new FuzzyRule(8, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(8, a, c));
     }
 
     // Rule 9: RB & GH → NEG, NEG  [DATA 100%]
@@ -223,7 +223,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(dkr_NEG);
     c->addOutput(dkp_NEG);
-    flipcuy->addFuzzyRule(new FuzzyRule(9, a, c));
+    fliproll->addFuzzyRule(new FuzzyRule(9, a, c));
     }
 }
 
