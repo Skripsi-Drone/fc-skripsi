@@ -129,7 +129,7 @@ void fuzzy_roll() {
     a->joinWithAND(RB, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Slow); //slow
-    c->addOutput(Responsive); 
+    c->addOutput(Responsive); //norm 
     fliproll->addFuzzyRule(new FuzzyRule(7, a, c));
     }
     {
@@ -137,7 +137,7 @@ void fuzzy_roll() {
     a->joinWithAND(RB, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Slow); //norm
-    c->addOutput(Responsive); //responsive
+    c->addOutput(Responsive); //norm
     fliproll->addFuzzyRule(new FuzzyRule(8, a, c));
     }
     {
