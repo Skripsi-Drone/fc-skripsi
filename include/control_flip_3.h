@@ -113,8 +113,8 @@ float constrain_value(float value, float min, float max) {
 }
 
 void enter_flip() {
-    // ctrl_mode = MODE_FLIP_LQR;
-    ctrl_mode = MODE_FLIP_FUZZY_LPV;
+    ctrl_mode = MODE_FLIP_LQR;
+    // ctrl_mode = MODE_FLIP_FUZZY_LPV;
     flip_start_time = micros();
     // flip_start_angle = roll_absolute;
 

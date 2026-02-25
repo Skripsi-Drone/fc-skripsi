@@ -155,8 +155,8 @@ void log_to_buffer() {
     entry->error_roll = error_roll;
     entry->error_roll_rate = error_roll_rate;
 
-    entry->kr_eff = get_kroll_eff();
-    entry->kp_eff = get_kp_eff();
+    entry->kr_eff = flipgain.roll;
+    entry->kp_eff = flipgain.p;
     
     entry->motor1_pwm = motor1_pwm;
     entry->motor2_pwm = motor2_pwm;
