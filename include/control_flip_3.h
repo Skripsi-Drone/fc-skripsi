@@ -42,7 +42,7 @@ float roll_relative;
 float yaw_at_flip_end = 0.0f;
 uint32_t flip_start_time = 0;
 float flip_start_angle = 0.0f;
-float flip_duration_sec = 0.85f; //0.75 0.5 1.0 0.8
+float flip_duration_sec = 0.9f; //0.75 0.5 1.0 0.8
 float K_roll_effective, K_p_effective;
 float accumulated_roll, last_roll_raw;
 //pertama 1 detik, kedua 0.9, trs 1.0
@@ -92,10 +92,15 @@ struct FlipGains { //samain kek base gain
 } flipgain;
 
 /*urutan pengujian terbang 25 februari:
-1. mode flip lqr, durasi trajectory 0.85
-2. mode flip fuzzy (mf baru), durasi trajectory 0.85
-3. mode flip fuzzy (mf baru), durasi trajectory 0.9
-4. mode flip lqr, durasi trajectory 0.9
+4. mode flip lqr, durasi trajectory 0.85
+2. mode flip fuzzy (mf baru), durasi trajectory 0.85 aman
+1. mode flip fuzzy (mf baru), durasi trajectory 0.9 aman
+3. mode flip lqr, durasi trajectory 0.9 aman, harusnya no 1 aman
+5.1 RBGM RBGL jadi norm coba tp terakhiran aja pake 4 skenario ini 
+5.2
+5.3
+5.4
+
 */
 float constrain_value(float value, float min, float max) {
     if (value < min) {
@@ -108,8 +113,8 @@ float constrain_value(float value, float min, float max) {
 }
 
 void enter_flip() {
-    ctrl_mode = MODE_FLIP_LQR;
-    // ctrl_mode = MODE_FLIP_FUZZY_LPV;
+    // ctrl_mode = MODE_FLIP_LQR;
+    ctrl_mode = MODE_FLIP_FUZZY_LPV;
     flip_start_time = micros();
     // flip_start_angle = roll_absolute;
 
