@@ -88,7 +88,7 @@ struct HoverGains {
 
 struct FlipGains { //samain kek base gain
     float roll  = 3.4; //2.76 3.76 4.6 5.5 7 8 10 13 15 17 20 22 18 12 
-    float p     = 2.98; //1.94 3.5
+    float p     = 2.38; //1.94 3.5
 } flipgain;
 
 /*urutan pengujian terbang 25 februari:
