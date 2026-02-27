@@ -80,7 +80,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Aggresive); //RNorm
-    c->addOutput(PNorm);
+    c->addOutput(Damped);
     fliproll->addFuzzyRule(new FuzzyRule(1, a, c));
     }
     {
@@ -88,7 +88,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Aggresive);
-    c->addOutput(Responsive); //pnorm
+    c->addOutput(Damped); //pnorm
     fliproll->addFuzzyRule(new FuzzyRule(2, a, c));
     }
     {
@@ -96,7 +96,7 @@ void fuzzy_roll() {
     a->joinWithAND(RS, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Aggresive); //norm
-    c->addOutput(Responsive); //damped, bisa jadi pnorm
+    c->addOutput(PNorm); //damped, bisa jadi pnorm
     fliproll->addFuzzyRule(new FuzzyRule(3, a, c));
     }
     {
@@ -124,12 +124,13 @@ void fuzzy_roll() {
     c->addOutput(Damped); //norm
     fliproll->addFuzzyRule(new FuzzyRule(6, a, c));
     }
+    // kalo jelek rules 7 8 balikin ke pnorm aja yg diubah cm fase 1
     {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RB, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Slow); //slow
-    c->addOutput(PNorm); //norm 
+    c->addOutput(Responsive); //norm 
     fliproll->addFuzzyRule(new FuzzyRule(7, a, c));
     }
     {
@@ -137,7 +138,7 @@ void fuzzy_roll() {
     a->joinWithAND(RB, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(Slow); //norm
-    c->addOutput(PNorm); //norm
+    c->addOutput(Responsive); //norm
     fliproll->addFuzzyRule(new FuzzyRule(8, a, c));
     }
     {
