@@ -105,7 +105,7 @@ void fuzzy_roll() {
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     // cek ini bs jd ga cocok jd balikin ke norm semua
     c->addOutput(Aggresive); //norm
-    c->addOutput(Responsive); //norm
+    c->addOutput(PNorm); //norm
     fliproll->addFuzzyRule(new FuzzyRule(4, a, c));
     }
     {
@@ -113,15 +113,15 @@ void fuzzy_roll() {
     a->joinWithAND(RM, GM);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm); //aggr
-    c->addOutput(PNorm); 
+    c->addOutput(Responsive); 
     fliproll->addFuzzyRule(new FuzzyRule(5, a, c));
     }
     {
     FuzzyRuleAntecedent *a = new FuzzyRuleAntecedent();
     a->joinWithAND(RM, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
-    c->addOutput(Aggresive); //nprm
-    c->addOutput(Damped); //norm
+    c->addOutput(RNorm); //nprm
+    c->addOutput(Responsive); //norm
     fliproll->addFuzzyRule(new FuzzyRule(6, a, c));
     }
     // kalo jelek rules 7 8 balikin ke pnorm aja yg diubah cm fase 1
