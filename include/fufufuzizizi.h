@@ -104,7 +104,7 @@ void fuzzy_roll() {
     a->joinWithAND(RM, GL);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     // cek ini bs jd ga cocok jd balikin ke norm semua
-    c->addOutput(Aggresive); //norm
+    c->addOutput(RNorm); //norm
     c->addOutput(PNorm); //norm
     fliproll->addFuzzyRule(new FuzzyRule(4, a, c));
     }
