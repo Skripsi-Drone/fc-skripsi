@@ -58,7 +58,7 @@ void fuzzy_roll() {
     FuzzyOutput *gainRoll = new FuzzyOutput(1);
     FuzzySet *Slow  = new FuzzySet(-1.50, -1.00, -0.70, -0.30);
     FuzzySet *RNorm = new FuzzySet(-0.60, 0.00, 0.00, 0.90);
-    FuzzySet *Aggresive = new FuzzySet(0.6, 1.2, 2.2, 3.4); //uji1
+    FuzzySet *Aggresive = new FuzzySet(0.3, 0.7, 1.4, 2.2); //uji1
     // FuzzySet *Aggresive = new FuzzySet(0.6, 1.1, 1.6, 2.1); //uji2
     // FuzzySet *Aggressive = new FuzzySet(0.60, 0.90, 1.30, 1.80);
     gainRoll -> addFuzzySet(Slow);
@@ -121,7 +121,7 @@ void fuzzy_roll() {
     a->joinWithAND(RM, GH);
     FuzzyRuleConsequent *c = new FuzzyRuleConsequent();
     c->addOutput(RNorm); //nprm
-    c->addOutput(Responsive); //norm
+    c->addOutput(PNorm); //norm
     fliproll->addFuzzyRule(new FuzzyRule(6, a, c));
     }
     // kalo jelek rules 7 8 balikin ke pnorm aja yg diubah cm fase 1
